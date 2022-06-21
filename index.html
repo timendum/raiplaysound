@@ -103,6 +103,15 @@ body {
 		line-height: 1.3em;
 		color: #000;
 	}
+	code {
+		background: rgba(230, 235, 237, 0.25);
+		border-radius: 0.375em;
+		border: solid 1px rgba(210, 215, 217, 0.75);
+		font-family: "Courier New", monospace;
+		font-size: 0.9em;
+		margin: 0 0.25em;
+		padding: 0.25em 0.65em;
+	}
 
 	em, i {
 		font-style: italic;
@@ -954,10 +963,12 @@ body {
 							<p>
 								In questo elenco sono presenti i podcast generati su tutti i contenuti trovati su RaiPlaySound,
 								esclusi gli audio dei film e i programmi del palinsesto RadioRai.<br/>
-								Per averli, basta seguire le istruzioni sotto e generarli puntualmente.
 							</p>
 							<p>
-								Tutto il codice è su <a href="https://github.com/timendum/raiplaysound">timendum/raiplaysound</a>.
+								Questo sito non ospita i file audio mp3, quelli rimangono sul sito della RAI, qui semplicemente trovi l'indice dei podcast e per ogni podcast l'indice delle puntante nel formato che piace alle app di podcast (RSS).
+							</p>
+							<p>
+								Per i più curiosi, tutto il codice che ho usato per questo lavoro è su <a href="https://github.com/timendum/raiplaysound">timendum/raiplaysound</a>.
 							</p>
 							<p>
 								Ultimo aggiornamento: 2022-06-21.
@@ -969,6 +980,39 @@ body {
 							<header>
 								<h3><a id="info">Istruzioni</a></h3>
 							</header>
+							<p>Per usare questo progetto, basta:
+							<ol>
+								<li>Sfogliare l'enorme lista qui sotto e trovare il podcast che ti piace</li>
+								<li>Clicca con il tasto destro sul nome e scegli "copia collegamento"</li>
+								<li>Vai sulla tua app di podcast preferita (per Android consiglio Podcast Addict, o PocketCasts oppure AntennaPod)</li>
+								<li>Clicca sul pulsante per aggiungere un nuovo podcast, cerca l'opzione RSS</li>
+								<li>Incolla l'indirizzo ottenuto nel secondo passo (es: <code>https://timendum.github.io/raiplaysound/titolo.xml</code>)</li>
+							</ol>
+							<p>Tutto qui, per usare un qualsiasi podcast offerto dalla Rai indicato qui sotto, è tutto già pronto, devi solo aggiungerlo nella tua app.</p>
+						</article>
+
+					<!-- Post -->
+						<article class="box post post-excerpt">
+							<header>
+								<h3><a id="diy">Fai da te</a></h3>
+							</header>
+							<p>Per usare questo progetto, basta:
+							<ol>
+								<li>Sfogliare l'enorme lista qui sotto e trovare il podcast che ti piace</li>
+								<li>Clicca con il tasto destro sul nome e scegli "copia collegamento"</li>
+								<li>Vai sulla tua app di podcast preferita (per Android consiglio Podcast Addict, o PocketCasts oppure AntennaPod)</li>
+								<li>Clicca sul pulsante per aggiungere un nuovo podcast, cerca l'opzione RSS</li>
+								<li>Incolla l'indirizzo ottenuto nel secondo passo (es: <code>https://timendum.github.io/raiplaysound/ioeroilmilanese.xml<code>)</li>
+							</ol>
+							<p>Tutto qui, per usare un qualsiasi podcast offerto dalla Rai indicato qui sotto, è tutto già pronto, devi solo aggiungerlo nella tua app.</p>
+						</article>
+
+					<!-- Post -->
+						<article class="box post post-excerpt">
+							<header>
+								<h3><a id="diy">Fai da te</a></h3>
+							</header>
+							<p>Sei uno smanettone e vuoi rifare da solo il lavoro, oppure crearti un feed più agggiornato? Eccoti le istruzioni</p>
 							<h4>Installazione</h4>
 							<p>Clonare il repository</p>
 							<pre>git clone https://github.com/timendum/raiplaysound.git</pre>
@@ -1035,6 +1079,7 @@ body {
 						<ul>
 							<li><a href="#home">Up</a></li>
 							<li><a href="#info">Istruzioni</a></li>
+							<li><a href="#diy">Fai da te</a></li>
 							<li><a href="#list">Lista</a></li>
 							<li><a href="#tag">Tag</a></li>
 						</ul>
