@@ -994,6 +994,22 @@ body {
 					<!-- Post -->
 						<article class="box post post-excerpt">
 							<header>
+								<h3><a id="consiglio">Cosa mi consigli?</a></h3>
+							</header>
+							<p>Ti consiglio di partire dai <a href="#tag">tag</a>,
+                             guardali tutti o cerca un argomento che ti interessa
+                             (<a href="#tag-Storytelling">Storytelling</a>, <a href="#tag-Interviste">Interviste</a>, <a href="#tag-Fiabe e favole">Fiabe e favole</a>, <a href="#tag-Viaggi">Viaggi</a>, &hellip;)
+                             e da lì sfoglia i podcast che appartengono a quella categoria.</p>
+                            <p>In alternativa sul <a href="https://www.raiplaysound.it/" target="_blank">sito ufficiale</a>
+                             puoi sfogliarli in una forma graficamente più curata,
+                             poi torna qui per trovare il feed.
+                            </p>
+						</article>
+					<!-- Post -->
+
+					<!-- Post -->
+						<article class="box post post-excerpt">
+							<header>
 								<h3><a id="diy">Fai da te</a></h3>
 							</header>
 							<p>Sei uno smanettone e vuoi rifare da solo il lavoro, oppure crearti un feed più aggiornato? Eccoti le istruzioni</p>
@@ -1011,20 +1027,18 @@ body {
 							<p>Per aggiornare questa pagina:</p>
 							<pre>python index.py</pre>
 						</article>
-					<!-- Post -->
-						<article class="box post post-excerpt">
-							<header>
-								<h3><a id="list"> Lista dei feed </a></h3>
-							</header>
-							%%list%%
-						</article>
-					<!-- Post -->
 						<hr/>
 						<article class="box post post-excerpt">
 							<header>
 								<h3><a id="tag"> Tag </a></h3>
 							</header>
 							%%tag%%
+						</article>
+						<article class="box post post-excerpt">
+							<header>
+								<h3><a id="list"> Lista dei feed </a></h3>
+							</header>
+							%%list%%
 						</article>
 				</div>
 			</div>
@@ -1041,6 +1055,7 @@ body {
 						<ul>
 							<li><a href="#home">Up</a></li>
 							<li><a href="#info">Istruzioni</a></li>
+							<li><a href="#consiglio">Cosa mi consigli?</a></li>
 							<li><a href="#diy">Fai da te</a></li>
 							<li><a href="#list">Lista</a></li>
 							<li><a href="#tag">Tag</a></li>
