@@ -102,6 +102,7 @@ body {
 		margin: 15px 0px;
 		line-height: 1.3em;
 		color: #000;
+        font-family: "Courier New", monospace;
 	}
 	code {
 		background: rgba(230, 235, 237, 0.25);
