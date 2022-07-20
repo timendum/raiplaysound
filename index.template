@@ -9,6 +9,7 @@
 		<title>RaiPlaySound - Podcast non ufficiale</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAZBJREFUOE/Nkz9IW3EQxz+/F1/+t0MVFCwmEmihdJDSQUEUrYTgYMgUnJxcxUC3NtgOgojt4lYtVQcXB7WDULqkQ4JgtIU2mQQHlWCUmNKkLy99yU/yQofgFLJ443H3+R7fuxOelesoyFdCYKOJkBIdxLzwrORKzTb/16lBhHc1J5sQvlV6BwCjW3k51++gKqHwT7Ke0klmK7wdcNBzTzHzyQuDDz91eu8rzD6z41QFv64qvD8qIYK7v2XIZ+XNvka7XfDJ7ya894fNcTehzwUUATN9di61Kn6PldfxIqcFyZMHFtK5SiOg5tBGwEUk9pdVv8sE1GKsR+VpuwWbBTocCnsnZRIZA71CHbA05OJ71qDLKUzqwkGJnQk3x/kqqgKdToXItyKZojRBww/bzGmmvhTqgMnHNhaTGuFHVjRDspYusz3hZvprEaMqyev17QU8bcTO6srLI06Wf5QQL7bycrBbZT2tI8A0792hxsvnDqIJrWHv416VoM+KaoH4ucHHlM4duIOWT7nlZ2r1nW8AiXy12zkjkLwAAAAASUVORK5CYII=">
 		<style>
 /*
 	Striped by HTML5 UP
@@ -1049,23 +1050,23 @@ body {
 				
 
 				<!-- Logo -->
-					<h1 id="logo"><a href="#">Rai Podcast</a></h1>
+				<h1 id="logo"><a href="#">RaiPlay Podcast</a></h1>
 
 				<!-- Nav -->
-					<nav id="nav">
-						<ul>
-							<li><a href="#home">Up</a></li>
-							<li><a href="#info">Istruzioni</a></li>
-							<li><a href="#consiglio">Cosa mi consigli?</a></li>
-							<li><a href="#diy">Fai da te</a></li>
-							<li><a href="#list">Lista</a></li>
-							<li><a href="#tag">Tag</a></li>
-						</ul>
-					</nav>
-				<!-- Copyright -->
-					<ul id="copyright">
-						Design: <a href="http://html5up.net">HTML5 UP</a></li>
-					</ul>
+                <nav id="nav">
+                    <ul>
+                        <li><a href="#home">Up</a></li>
+                        <li><a href="#info">Istruzioni</a></li>
+                        <li><a href="#consiglio">Cosa mi consigli?</a></li>
+                        <li><a href="#diy">Fai da te</a></li>
+                        <li><a href="#list">Lista</a></li>
+                        <li><a href="#tag">Tag</a></li>
+                    </ul>
+                </nav>
+                <!-- Copyright -->
+                <ul id="copyright">
+                    Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                </ul>
 
 			</div>
 
