@@ -152,18 +152,35 @@ class RaiParser:
             filename = url_to_filename(self.url)
             with open(pathjoin(self.folderPath, filename), "w", encoding="utf8") as wo:
                 wo.write(to_rss_string(feed))
-            print(f"Written {filename}")
+            print(f"Written {pathjoin(self.folderPath, filename)}")
         return [feed] + self.inner
 
 
 def main():
-    import sys
+    import argparse
 
-    if len(sys.argv) < 2:
-        print("Need a url")
-        exit(2)
-    parser = RaiParser(sys.argv[1], ".")
-    parser.process(skip_programmi=True, skip_film=True)
+    parser = argparse.ArgumentParser(
+        description="Genera un RSS da un programma di RaiPlaySound.",
+        epilog="Info su https://github.com/timendum/raiplaysound/",
+    )
+    parser.add_argument("url", help="URL di un podcast (o playlist) su raiplaysound.")
+    parser.add_argument(
+        "-f", "--folder", help="Cartella in cui scrivere il RSS podcast.", default="."
+    )
+    parser.add_argument(
+        "--film",
+        help="Elabora il podcast anche se sembra un film.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--programma",
+        help="Elabora il podcast anche se sembra un programma radio/tv.",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+    parser = RaiParser(args.url, args.folder)
+    parser.process(skip_programmi=not args.programma, skip_film=not args.film)
 
 
 if __name__ == "__main__":
