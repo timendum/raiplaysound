@@ -75,9 +75,8 @@ class RaiParser:
         feed.update = _datetime_parser(rdata["block"]["update_date"])
         if not feed.update:
             feed.update = _datetime_parser(rdata["track_info"]["date"])
-        last_update = dt.now()
-        counter_update = 1
-        for item_id, item in enumerate(rdata["block"]["cards"]):
+        last_update = dt.fromtimestamp(0)
+        for item in rdata["block"]["cards"]:
             if "/playlist/" in item.get("weblink", ""):
                 self.extend(item["weblink"])
             if not item.get("audio", None):
@@ -88,15 +87,9 @@ class RaiParser:
             # Keep original ordering by tweaking update seconds
             # Fix time in case of bad ordering
             dupdate = _datetime_parser(item["create_date"] + " " + item["create_time"])
-
-            if item_id > 0 and dupdate <= last_update:
+            if dupdate <= last_update:
                 dupdate = last_update + timedelta(seconds=1)
-                fitem.update = dupdate
-                counter_update += 1
-            else:
-                fitem.update = dupdate
-                # reset counter
-                counter_update = 1
+            fitem.update = dupdate
             last_update = dupdate
             fitem.url = urljoin(self.url, item["track_info"]["page_url"])
             fitem.content = item.get("description", item["title"])
