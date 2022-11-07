@@ -95,7 +95,7 @@ class RaiParser:
             fitem.content = item.get("description", item["title"])
             fitem._data = {
                 "enclosure": {
-                    "@type": "audio/mp3",
+                    "@type": "audio/mpeg",
                     "@url": urljoin(self.url, item["audio"]["url"]),
                 },
                 f"{NSITUNES}title": fitem.title,
