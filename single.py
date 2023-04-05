@@ -103,6 +103,8 @@ class RaiParser:
                 f"{NSITUNES}duration": item["audio"]["duration"],
                 "image": {"url": urljoin(self.url, item["image"])},
             }
+            if item.get("downloadable_audio", None) and item["downloadable_audio"].get("url", None):
+                fitem._data["enclosure"]["@url"] = urljoin(self.url, item["downloadable_audio"]["url"]).replace("http:", "https:")
             if item.get("season", None) and item.get("episode", None):
                 fitem._data[f"{NSITUNES}season"] = item["season"]
                 fitem._data[f"{NSITUNES}episode"] = item["episode"]
