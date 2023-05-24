@@ -48,7 +48,7 @@ class RaiParser:
         parser = RaiParser(url, self.folderPath)
         self.inner.extend(parser.process())
 
-    def _json_to_feed(self, feed: Feed, rdata) -> List[Feed]:
+    def _json_to_feed(self, feed: Feed, rdata) -> None:
         feed.title = rdata["title"]
         feed.description = rdata["podcast_info"].get("description", "")
         feed.description = feed.description or rdata["title"]
@@ -75,7 +75,6 @@ class RaiParser:
         feed.update = _datetime_parser(rdata["block"]["update_date"])
         if not feed.update:
             feed.update = _datetime_parser(rdata["track_info"]["date"])
-        last_update = dt.fromtimestamp(0)
         for item in rdata["block"]["cards"]:
             if "/playlist/" in item.get("weblink", ""):
                 self.extend(item["weblink"])
@@ -87,10 +86,7 @@ class RaiParser:
             # Keep original ordering by tweaking update seconds
             # Fix time in case of bad ordering
             dupdate = _datetime_parser(item["create_date"] + " " + item["create_time"])
-            if dupdate <= last_update:
-                dupdate = last_update + timedelta(seconds=1)
             fitem.update = dupdate
-            last_update = dupdate
             fitem.url = urljoin(self.url, item["track_info"]["page_url"])
             fitem.content = item.get("description", item["title"])
             fitem._data = {
@@ -104,13 +100,15 @@ class RaiParser:
                 "image": {"url": urljoin(self.url, item["image"])},
             }
             if item.get("downloadable_audio", None) and item["downloadable_audio"].get("url", None):
-                fitem._data["enclosure"]["@url"] = urljoin(self.url, item["downloadable_audio"]["url"]).replace("http:", "https:")
+                fitem._data["enclosure"]["@url"] = urljoin(
+                    self.url, item["downloadable_audio"]["url"]
+                ).replace("http:", "https:")
             if item.get("season", None) and item.get("episode", None):
                 fitem._data[f"{NSITUNES}season"] = item["season"]
                 fitem._data[f"{NSITUNES}episode"] = item["episode"]
             feed.items.append(fitem)
 
-    def process(self, skip_programmi=True, skip_film=True) -> List[Feed]:
+    def process(self, skip_programmi=True, skip_film=True, date_ok=False) -> List[Feed]:
         result = requests.get(self.url + ".json")
         try:
             result.raise_for_status()
@@ -133,6 +131,25 @@ class RaiParser:
         if not feed.items and not self.inner:
             print(f"Empty: {self.url}")
         if feed.items:
+            if not date_ok and all([item.update for item in feed.items]):
+                # Try to fix the update timestamp
+                dates = [i.update.date() for i in feed.items]
+                increasing = all(map(lambda a, b: b >= a, dates[0:-1], dates[1:]))
+                decreasing = all(map(lambda a, b: b <= a, dates[0:-1], dates[1:]))
+                if increasing and not decreasing:
+                    # Dates never decrease
+                    last_update = dt.fromtimestamp(0)
+                    for item in feed.items:
+                        if item.update <= last_update:
+                            item.update = last_update + timedelta(seconds=1)
+                        last_update = item.update
+                elif decreasing and not increasing:
+                    # Dates never decrease
+                    last_update = feed.items[0].update + timedelta(seconds=1)
+                    for item in feed.items:
+                        if item.update >= last_update:
+                            item.update = last_update - timedelta(seconds=1)
+                        last_update = item.update
             if all([i._data.get(f"{NSITUNES}episode") for i in feed.items]) and all(
                 [i._data.get(f"{NSITUNES}season") for i in feed.items]
             ):
@@ -179,10 +196,15 @@ def main():
         help="Elabora il podcast anche se sembra un programma radio/tv.",
         action="store_true",
     )
+    parser.add_argument(
+        "--dateok",
+        help="Lascia inalterata la data di pubblicazione degli episodi.",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     parser = RaiParser(args.url, args.folder)
-    parser.process(skip_programmi=not args.programma, skip_film=not args.film)
+    parser.process(skip_programmi=not args.programma, skip_film=not args.film, date_ok=args.dateok)
 
 
 if __name__ == "__main__":
