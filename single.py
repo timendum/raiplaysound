@@ -118,10 +118,10 @@ class RaiParser:
         rdata = result.json()
         typology = rdata["podcast_info"].get("typology", "").lower()
         if skip_programmi and (typology in ("programmi radio", "informazione notiziari")):
-            print(f"Skipped: {self.url}")
+            print(f"Skipped programmi: {self.url} ({typology})")
             return []
         if skip_film and (typology in ("film", "fiction")):
-            print(f"Skipped: {self.url}")
+            print(f"Skipped film: {self.url} ({typology})")
             return []
         for tab in rdata["tab_menu"]:
             if tab["content_type"] == "playlist":
