@@ -95,12 +95,13 @@ class Indexer:
             tags[tag] = sorted(tags[tag], key=lambda entry: entry.title.lower())
         text = "<p>Salta a: "
         for tag in sorted(tags.keys()):
-            text += f"<a href='#tag-{tag}'>{tag}</a> "
+            text += f"<a x-show='show_item($el)' href='#tag-{tag}'>{tag}</a> "
         text += "</p>\n"
         for tag in sorted(tags.keys()):
-            text += f"<h4 id='tag-{tag}'>{tag}</h4>\n"
+            text += f"<div x-show='show_header($el)'>\n<h4 id='tag-{tag}'>{tag}</h4>\n"
             for v in tags[tag]:
                 text += f'<p><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+            text += "</div>\n"
         return text
 
 
