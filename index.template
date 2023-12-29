@@ -1006,7 +1006,7 @@ body {
                   return this.search === '' || el.firstElementChild.textContent.toLowerCase().includes(this.search.toLowerCase())
                 }
               }">
-                <input class="search-input" type="search" placeholder="Filtra tag" x-model="search">
+                <p><input class="search-input" type="search" placeholder="Filtra tag" x-model="search"></p>
 							  %%tag%%
               </div>
 						</article>
