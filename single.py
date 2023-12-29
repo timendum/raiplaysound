@@ -175,10 +175,13 @@ class RaiParser:
             print(f"Written {filename}")
         return [feed] + self.inner
 
-def atomic_write(filename, content: str):
+def atomic_write(filename, content: str, update_time: Optional[dt] = None):
     tmp = tempfile.NamedTemporaryFile(mode='w', encoding='utf8', delete=False, dir=os.path.dirname(filename), prefix='.tmp-single-', suffix='.xml')
     tmp.write(content)
     tmp.close()
+    if update_time is not None:
+        timestamp = int(update_time.strftime('%s'))
+        os.utime(tmp.name, (timestamp, timestamp))
     os.replace(tmp.name, filename)
 
 
