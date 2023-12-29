@@ -1,4 +1,2 @@
 dist
 *.xml
-*.pyc
-__pycache__/
