@@ -171,7 +171,7 @@ class RaiParser:
             else:
                 feed.sort_items()
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
-            atomic_write(filename, to_rss_string(feed))
+            atomic_write(filename, to_rss_string(feed), update_time=max(item.update for item in feed.items))
             print(f"Written {filename}")
         return [feed] + self.inner
 
