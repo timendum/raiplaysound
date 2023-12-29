@@ -179,7 +179,7 @@ def atomic_write(filename, content: str):
     tmp = tempfile.NamedTemporaryFile(mode='w', encoding='utf8', delete=False, dir=os.path.dirname(filename), prefix='.tmp-single-', suffix='.xml')
     tmp.write(content)
     tmp.close()
-    os.rename(tmp.name, filename)
+    os.replace(tmp.name, filename)
 
 
 def main():
