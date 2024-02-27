@@ -1,9 +1,11 @@
 from datetime import datetime as dt
 from datetime import timedelta
 from itertools import chain
+import os
 from os.path import join as pathjoin
 from typing import List, Optional
 from urllib.parse import urljoin
+import tempfile
 
 import requests
 from feedendum import to_rss_string, Feed, FeedItem
@@ -168,11 +170,16 @@ class RaiParser:
                     )
             else:
                 feed.sort_items()
-            filename = url_to_filename(self.url)
-            with open(pathjoin(self.folderPath, filename), "w", encoding="utf8") as wo:
-                wo.write(to_rss_string(feed))
-            print(f"Written {pathjoin(self.folderPath, filename)}")
+            filename = pathjoin(self.folderPath, url_to_filename(self.url))
+            atomic_write(filename, to_rss_string(feed))
+            print(f"Written {filename}")
         return [feed] + self.inner
+
+def atomic_write(filename, content: str):
+    tmp = tempfile.NamedTemporaryFile(mode='w', encoding='utf8', delete=False, dir=os.path.dirname(filename), prefix='.tmp-single-', suffix='.xml')
+    tmp.write(content)
+    tmp.close()
+    os.replace(tmp.name, filename)
 
 
 def main():
