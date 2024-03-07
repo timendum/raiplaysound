@@ -171,14 +171,17 @@ class RaiParser:
             else:
                 feed.sort_items()
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
-            atomic_write(filename, to_rss_string(feed))
+            atomic_write(filename, to_rss_string(feed), update_time=max(item.update for item in feed.items))
             print(f"Written {filename}")
         return [feed] + self.inner
 
-def atomic_write(filename, content: str):
+def atomic_write(filename, content: str, update_time: Optional[dt] = None):
     tmp = tempfile.NamedTemporaryFile(mode='w', encoding='utf8', delete=False, dir=os.path.dirname(filename), prefix='.tmp-single-', suffix='.xml')
     tmp.write(content)
     tmp.close()
+    if update_time is not None:
+        timestamp = int(update_time.strftime('%s'))
+        os.utime(tmp.name, (timestamp, timestamp))
     os.replace(tmp.name, filename)
 
 
