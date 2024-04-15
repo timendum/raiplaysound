@@ -109,7 +109,9 @@ class RaiParser:
                 fitem._data[f"{NSITUNES}episode"] = item["episode"]
             feed.items.append(fitem)
 
-    def process(self, skip_programmi=True, skip_film=True, date_ok=False) -> list[Feed]:
+    def process(
+        self, skip_programmi=True, skip_film=True, date_ok=False, reverse=False
+    ) -> list[Feed]:
         result = requests.get(self.url + ".json")
         try:
             result.raise_for_status()
@@ -159,6 +161,7 @@ class RaiParser:
                         feed.items,
                         key=lambda e: int(e._data[f"{NSITUNES}episode"])
                         + int(e._data[f"{NSITUNES}season"]) * 10000,
+                        reverse=reverse,
                     )
                 except ValueError:
                     # season or episode not an int
@@ -166,6 +169,7 @@ class RaiParser:
                         feed.items,
                         key=lambda e: str(e._data[f"{NSITUNES}season"]).zfill(5)
                         + str(e._data[f"{NSITUNES}episode"]).zfill(5),
+                        reverse=reverse,
                     )
             else:
                 feed.sort_items()
@@ -215,10 +219,20 @@ def main():
         help="Lascia inalterata la data di pubblicazione degli episodi.",
         action="store_true",
     )
+    parser.add_argument(
+        "--reverse",
+        help="Ordina gli episodi dal più recente al meno recente.",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     parser = RaiParser(args.url, args.folder)
-    parser.process(skip_programmi=not args.programma, skip_film=not args.film, date_ok=args.dateok)
+    parser.process(
+        skip_programmi=not args.programma,
+        skip_film=not args.film,
+        date_ok=args.dateok,
+        reverse=args.reverse,
+    )
 
 
 if __name__ == "__main__":

@@ -987,6 +987,8 @@ body {
 							<pre>python single.py --film --programma https://www.raiplaysound.it/…</pre>
 							<p>Se nel feed generato vuoi le date originali, usa:</p>
 							<pre>python single.py --dateok https://www.raiplaysound.it/…</pre>
+							<p>Se preferisci avere le puntate ordinate dalla più recente usa:</p>
+							<pre>python single.py --reverse https://www.raiplaysound.it/…</pre>
 							<p>Per generare tutti i feed in un colpo solo nella cartella <code>dist</code>.
 							<pre>python all.py</pre>
 							<p>Per aggiornare questa pagina:</p>
