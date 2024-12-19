@@ -1,3 +1,5 @@
+import argparse
+
 from os import makedirs, path
 from urllib.parse import urljoin
 
@@ -44,10 +46,28 @@ class RaiPlaySound:
             self.parse_genere(genere)
 
 
-def main():
+def main(skip_programmi: bool, skip_film: bool):
     dumper = RaiPlaySound()
     dumper.parse_generi()
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(
+        description="Genera un RSS per ogni programma disponibile su RaiPlaySound.",
+        epilog="Info su https://github.com/timendum/raiplaysound/",
+    )
+    parser.add_argument(
+        "--film",
+        help="Elabora il podcast anche se sembra un film.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--programma",
+        help="Elabora il podcast anche se sembra un programma radio/tv.",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+    _skip_programmi = not args.programma
+    _skip_film = not args.film
+    main(_skip_programmi, _skip_film)
