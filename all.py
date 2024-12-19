@@ -10,6 +10,8 @@ from single import RaiParser
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 
+REQ_TIMEOUT=3
+
 
 class RaiPlaySound:
     def __init__(self):
@@ -18,7 +20,7 @@ class RaiPlaySound:
         makedirs(self._base_path, exist_ok=True)
 
     def parse_genere(self, url):
-        result = requests.get(url)
+        result = requests.get(url, timeout=REQ_TIMEOUT)
         result.raise_for_status()
         soup = BeautifulSoup(result.content, "html.parser")
         elements = soup.find_all("article")
