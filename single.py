@@ -73,10 +73,15 @@ class RaiParser:
         except KeyError:
             pass
         feed._data[f"{NSITUNES}category"] = [{"@text": c} for c in categories]
-        feed.update = _datetime_parser(rdata["block"]["update_date"])
+        cards = []
+        try:
+            feed.update = _datetime_parser(rdata["block"]["update_date"])
+            cards = rdata["block"]["cards"]
+        except KeyError:
+            pass
         if not feed.update:
             feed.update = _datetime_parser(rdata["track_info"]["date"])
-        for item in rdata["block"]["cards"]:
+        for item in cards:
             if "/playlist/" in item.get("weblink", ""):
                 self.extend(item["weblink"])
             if not item.get("audio", None):
