@@ -26,6 +26,7 @@ Repository = "https://github.com/timendum/raiplaysound"
 [project.scripts]
 single = "raiplaysound.single:main"
 all = "raiplaysound.all:main"
+index = "raiplaysound.index:main"
 
 [tool.ruff]
 # Enable Pyflakes `E` and `F` codes by default.
