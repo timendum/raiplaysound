@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from single import RaiParser
+from .single import RaiParser
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 SITEMAP_ENTRYPOINT = "https://www.raiplaysound.it/sitemap.archivio.indice.xml"

@@ -1,5 +1,0 @@
-beautifulsoup4==4.12.3
-feedendum==0.4.0
-lxml==5.3.0
-requests==2.32.3
-soupsieve==2.6
