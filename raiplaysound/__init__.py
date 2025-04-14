@@ -1,6 +1,4 @@
-from . import single
-from . import all
-from . import index
+from . import all, index, single
 
 __all__ = [
     "single",

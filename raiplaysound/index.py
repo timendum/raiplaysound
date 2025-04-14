@@ -44,7 +44,7 @@ class Indexer:
                     [feed._data["{http://www.itunes.com/dtds/podcast-1.0.dtd}category"]["@text"]],
                 )
             self.entries.append(e)
-        with open(path.join(path.dirname(path.abspath(__file__)), "index.template"), "r") as t:
+        with open(path.join(path.dirname(path.abspath(__file__)), "index.template")) as t:
             output = t.read()
         output = output.replace("%%lastupdate%%", date.today().isoformat())
         output = output.replace("%%list%%", self.generate_list())

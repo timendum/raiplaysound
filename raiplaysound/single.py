@@ -35,9 +35,9 @@ def _datetime_parser(s: str) -> dt | None:
 
 
 class RaiParser:
-    def __init__(self, url: str, folderPath: str) -> None:
+    def __init__(self, url: str, folder_path: str) -> None:
         self.url = url
-        self.folderPath = folderPath
+        self.folderPath = folder_path
         self.inner: list[Feed] = []
 
     def extend(self, url: str) -> None:

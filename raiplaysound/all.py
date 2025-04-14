@@ -1,5 +1,4 @@
 import argparse
-
 from os import makedirs, path
 from urllib.parse import urljoin
 
@@ -11,7 +10,7 @@ from .single import RaiParser
 GENERI_URL = "https://www.raiplaysound.it/generi"
 SITEMAP_ENTRYPOINT = "https://www.raiplaysound.it/sitemap.archivio.indice.xml"
 
-REQ_TIMEOUT=3
+REQ_TIMEOUT = 3
 
 
 class RaiPlaySound:
@@ -24,7 +23,7 @@ class RaiPlaySound:
         self.playlist_url = "https://www.raiplaysound.it/playlist/"
 
     def _get_locs_from_sitemap_url(self, sitemap_url: str) -> set[str]:
-        """Downloads sitemap from sitemap_url and returns all the urls contained in the <loc> tag."""
+        """Downloads sitemap from url and returns all urls contained in the <loc> tag."""
 
         urls = set()
         _r = requests.get(sitemap_url, timeout=REQ_TIMEOUT)
@@ -62,13 +61,13 @@ class RaiPlaySound:
         sitemaps_url = self._get_locs_from_sitemap_url(SITEMAP_ENTRYPOINT)
 
         for url in sitemaps_url:
-            if 'programmi' in url:
+            if "programmi" in url:
                 self._get_url_from_sitemap(url, self.programmi_url)
-            elif 'audiolibri' in url:
+            elif "audiolibri" in url:
                 self._get_url_from_sitemap(url, self.audiolibri_url)
-            elif 'playlist' in url:
+            elif "playlist" in url:
                 self._get_url_from_sitemap(url, self.playlist_url)
-            elif 'generi' in url:
+            elif "generi" in url:
                 self.parse_genere(url)
             else:
                 print(f"Unsupported sitemap: {url}")
