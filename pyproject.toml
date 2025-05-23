@@ -7,7 +7,7 @@ name = "RaiPlaySound"
 authors = [
   {name = "Timendum"}
 ]
-version = "0.2.0"
+version = "0.3.0"
 description = "Podcast generator for RaiPlay Sound"
 readme = "README.md"
 requires-python = ">=3.12"
