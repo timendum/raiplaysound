@@ -16,7 +16,7 @@ REQ_TIMEOUT = 3
 class RaiPlaySound:
     def __init__(self):
         self._urls = set()
-        self._base_path = path.join(path.dirname(path.abspath(__file__)), "dist")
+        self._base_path = path.join(".", "dist")
         makedirs(self._base_path, exist_ok=True)
         self.programmi_url = "https://www.raiplaysound.it/programmi/"
         self.audiolibri_url = "https://www.raiplaysound.it/audiolibri/"
