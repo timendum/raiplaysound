@@ -103,12 +103,3 @@ class Indexer:
                 text += f'<p><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
             text += "</div>\n"
         return text
-
-
-def main():
-    indexer = Indexer()
-    indexer.generate()
-
-
-if __name__ == "__main__":
-    main()

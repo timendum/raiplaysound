@@ -974,25 +974,30 @@ body {
 								<h3><a id="diy">Fai da te</a></h3>
 							</header>
 							<p>Sei uno smanettone e vuoi rifare da solo il lavoro, oppure crearti un feed più aggiornato? Eccoti le istruzioni</p>
-							<h4>Installazione</h4>
+							<p>Ci sono due possibilità</p>
+							<h4>Semplice: UV(x)</h4>
+							<p>Se hai <a href="https://docs.astral.sh/uv/" target="_blank">uv</a> installato sul tuo sistema, puoi usare uvx.</p>
+							<p>Per generare un singolo Feed podcast:</p>
+							<pre>uvx raiplaysound single https://www.raiplaysound.it/…</pre>
+							<p>Se la pagina che ti interessa viene saltata, usa questo comando, per includere anche i programmi quotidiani e i film o fiction da ascoltare:</p>
+							<pre>uvx raiplaysound single --film --programma https://www.raiplaysound.it/…</pre>
+							<p>Se nel feed generato vuoi le date originali, usa:</p>
+							<pre>uvx raiplaysound single --dateok https://www.raiplaysound.it/…</pre>
+							<p>Se preferisci avere le puntate ordinate dalla più recente usa:</p>
+							<pre>uvx raiplaysound single --reverse https://www.raiplaysound.it/…</pre>
+							<p>Per generare tutti i feed in un colpo solo nella cartella <code>dist</code>.</p>
+							<pre>uvx raiplaysound all</pre>
+							<p>Per aggiornare questa pagina:</p>
+							<pre>uvx raiplaysound index</pre>
+
+							<h4>Sviluppatore: git e python</h4>
+							<p>Sfrutta questa possibilità se hai intenzione o necessità di modificare il codice.</p>
 							<p>Clonare il repository</p>
 							<pre>git clone https://github.com/timendum/raiplaysound.git</pre>
 							<p>Installare le dipendenze</p>
 							<pre>uv sync</pre>
-
-							<h4>Utilizzo</h4>
-							<p>Per generare un singolo Feed podcast:</p>
-							<pre>uv run single https://www.raiplaysound.it/…</pre>
-							<p>Se la pagina che ti interessa viene saltata, usa questo comando, per includere anche i programmi quotidiani e i film o fiction da ascoltare:</p>
-							<pre>uv run single --film --programma https://www.raiplaysound.it/…</pre>
-							<p>Se nel feed generato vuoi le date originali, usa:</p>
-							<pre>uv run single --dateok https://www.raiplaysound.it/…</pre>
-							<p>Se preferisci avere le puntate ordinate dalla più recente usa:</p>
-							<pre>uv run single --reverse https://www.raiplaysound.it/…</pre>
-							<p>Per generare tutti i feed in un colpo solo nella cartella <code>dist</code>.</p>
-							<pre>uv run all</pre>
-							<p>Per aggiornare questa pagina:</p>
-							<pre>uv run index</pre>
+							<p>Per lanciare i comandi</p>
+							<pre>uv run -m raiplaysound ...</pre>
 						</article>
 						<hr/>
 						<article class="box post post-excerpt">
