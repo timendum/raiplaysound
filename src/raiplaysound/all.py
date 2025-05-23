@@ -1,10 +1,8 @@
 from os import makedirs, path
-from pathlib import Path
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from feedendum import from_rss_file
 
 from raiplaysound.single import RaiParser
 
@@ -22,15 +20,6 @@ class RaiPlaySound:
         self._urls = set()
         self._base_path = path.join(".", "out")
         makedirs(self._base_path, exist_ok=True)
-        self._calc_seen()
-
-    def _calc_seen(self) -> None:
-        xfiles = Path(self._base_path).glob("*.xml")
-        last_processed = {}
-        for xfile in xfiles:
-            feed = from_rss_file(xfile)
-            last_processed[feed.url] = feed.update
-        self._last_processed = last_processed
 
     def _get_locs_from_sitemap_url(self, sitemap_url: str) -> set[str]:
         """Downloads sitemap from url and returns all urls contained in the <loc> tag."""
