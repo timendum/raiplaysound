@@ -985,7 +985,7 @@ body {
 							<pre>uvx raiplaysound single --dateok https://www.raiplaysound.it/…</pre>
 							<p>Se preferisci avere le puntate ordinate dalla più recente usa:</p>
 							<pre>uvx raiplaysound single --reverse https://www.raiplaysound.it/…</pre>
-							<p>Per generare tutti i feed in un colpo solo nella cartella <code>dist</code>.</p>
+							<p>Per generare tutti i feed in un colpo solo nella cartella <code>out</code>.</p>
 							<pre>uvx raiplaysound all</pre>
 							<p>Per aggiornare questa pagina:</p>
 							<pre>uvx raiplaysound index</pre>

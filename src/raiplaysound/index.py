@@ -16,7 +16,7 @@ class Indexer:
     def __init__(self):
         self.entries = []
         self._seen_url = set()
-        self._base_path = Path(path.join(".", "dist"))
+        self._base_path = Path(path.join(".", "out"))
 
     def generate(self) -> None:
         xfiles = self._base_path.glob("*.xml")

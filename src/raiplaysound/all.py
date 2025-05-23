@@ -20,7 +20,7 @@ REQ_TIMEOUT = 3
 class RaiPlaySound:
     def __init__(self):
         self._urls = set()
-        self._base_path = path.join(".", "dist")
+        self._base_path = path.join(".", "out")
         makedirs(self._base_path, exist_ok=True)
         self._calc_seen()
 

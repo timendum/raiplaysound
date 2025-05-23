@@ -37,6 +37,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
+        prog="raiplaysound",
         description="Genera RSS da RaiPlaySound",
         epilog="Info su https://github.com/timendum/raiplaysound/",
     )
