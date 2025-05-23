@@ -27,3 +27,7 @@ jobs:
       run: uvx ruff format --check .
     - name: Build
       run: uv build
+    - uses: actions/upload-artifact@v4
+      with:
+        name: wheel
+        path: dist/*.whl
