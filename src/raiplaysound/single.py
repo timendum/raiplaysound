@@ -19,18 +19,13 @@ def url_to_filename(url: str) -> str:
 def _datetime_parser(s: str) -> dt | None:
     if not s:
         return None
-    try:
-        return dt.strptime(s, "%d-%m-%Y %H:%M:%S")
-    except ValueError:
-        pass
-    try:
-        return dt.strptime(s, "%d-%m-%Y %H:%M")
-    except ValueError:
-        pass
-    try:
-        return dt.strptime(s, "%Y-%m-%d")
-    except ValueError:
-        pass
+    formats = ["%d-%m-%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%Y-%m-%d"]
+    for fmt in formats:
+        try:
+            return dt.strptime(s, fmt)
+        except ValueError:
+            pass
+    print("Unparsed ", s)
     return None
 
 
