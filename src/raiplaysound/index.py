@@ -9,8 +9,10 @@ from feedendum import from_rss_file
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 
-Entry = namedtuple("Entry", ["title", "text", "file", "categories"])
+Entry = namedtuple("Entry", ["title", "sort", "text", "file", "categories"])
 
+def sort_title(title: str) -> str:
+    return normalize("NFD", title.lstrip("#'\"« ")).lower()
 
 class Indexer:
     def __init__(self):
@@ -26,6 +28,7 @@ class Indexer:
             try:
                 e = Entry(
                     feed.title,
+                    sort_title(feed.title),
                     feed.description,
                     filename,
                     [
@@ -38,7 +41,8 @@ class Indexer:
             except TypeError:
                 # Podcast with ony one category
                 e = Entry(
-                    feed.title,
+                    feed.title
+                    sort_title(feed.title),
                     feed.description,
                     filename,
                     [feed._data["{http://www.itunes.com/dtds/podcast-1.0.dtd}category"]["@text"]],
@@ -55,13 +59,13 @@ class Indexer:
     def generate_list(self):
         index = {}
         for entry in self.entries:
-            letter = normalize("NFD", entry.title.lstrip("#'\" "))[0].lower()
+            letter = entry.sort[0]
             if letter not in index:
                 index[letter] = []
             index[letter].append(entry)
         # Sort entries
         for letter in index:
-            index[letter] = sorted(index[letter], key=lambda entry: entry.title.lower())
+            index[letter] = sorted(index[letter], key=lambda entry: entry.sort)
         text = "<p>Salta a: "
         for k in sorted(index.keys()):
             text += f"<a href='#list-{k.upper()}'>{k.upper()}</a> "
@@ -69,7 +73,7 @@ class Indexer:
         for k in sorted(index.keys()):
             text += f"<h4 id='list-{k.upper()}'>{k.upper()}</h4>\n"
             for v in index[k]:
-                text += f'<p><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                text += f'<p x-show="show_feed($el)"><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
         return text
 
     def generate_tag(self):

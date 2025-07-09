@@ -1051,24 +1051,32 @@ body {
 							<header>
 								<h3><a id="tag"> Tag </a></h3>
 							</header>
-                            <div x-data="{
-                            search: '',
-                            show_item(el) {
-                              return this.search === '' || el.textContent.toLowerCase().includes(this.search.toLowerCase())
-                            },
-                            show_header(el) {
-                              return this.search === '' || el.firstElementChild.textContent.toLowerCase().includes(this.search.toLowerCase())
-                            }
-                            }">
-                            <p><input class="search-input" type="search" placeholder="Filtra tag" x-model="search"></p>
-                                          %%tag%%
-                            </div>
+							<div x-data="{
+							search: '',
+							show_item(el) {
+							  return this.search === '' || el.textContent.toLowerCase().includes(this.search.toLowerCase())
+							},
+							show_header(el) {
+							  return this.search === '' || el.firstElementChild.textContent.toLowerCase().includes(this.search.toLowerCase())
+							}
+							}">
+							<p><input class="search-input" type="search" placeholder="Filtra tag" x-model="search"></p>
+										  %%tag%%
+							</div>
 						</article>
 						<article class="box post post-excerpt">
 							<header>
 								<h3><a id="list"> Lista dei feed </a></h3>
 							</header>
+							<div x-data="{
+								title: '',
+								show_feed(el) {
+									return this.title === '' || el.textContent.toLowerCase().includes(this.title.toLowerCase())
+								}
+							}">
+							<p><input class="title-input" type="search" placeholder="Cerca nelle descrizioni" x-model="title"></p>
 							%%list%%
+							</div>
 						</article>
 				</div>
 			</div>
