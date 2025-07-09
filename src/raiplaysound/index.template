@@ -9,7 +9,7 @@
 		<title>RaiPlay Sound - Podcast non ufficiale</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAZBJREFUOE/Nkz9IW3EQxz+/F1/+t0MVFCwmEmihdJDSQUEUrYTgYMgUnJxcxUC3NtgOgojt4lYtVQcXB7WDULqkQ4JgtIU2mQQHlWCUmNKkLy99yU/yQofgFLJ443H3+R7fuxOelesoyFdCYKOJkBIdxLzwrORKzTb/16lBhHc1J5sQvlV6BwCjW3k51++gKqHwT7Ke0klmK7wdcNBzTzHzyQuDDz91eu8rzD6z41QFv64qvD8qIYK7v2XIZ+XNvka7XfDJ7ya894fNcTehzwUUATN9di61Kn6PldfxIqcFyZMHFtK5SiOg5tBGwEUk9pdVv8sE1GKsR+VpuwWbBTocCnsnZRIZA71CHbA05OJ71qDLKUzqwkGJnQk3x/kqqgKdToXItyKZojRBww/bzGmmvhTqgMnHNhaTGuFHVjRDspYusz3hZvprEaMqyev17QU8bcTO6srLI06Wf5QQL7bycrBbZT2tI8A0792hxsvnDqIJrWHv416VoM+KaoH4ucHHlM4duIOWT7nlZ2r1nW8AiXy12zkjkLwAAAAASUVORK5CYII=">
+		<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAZBJREFUOE/Nkz9IW3EQxz+/F1/+t0MVFCwmEmihdJDSQUEUrYTgYMgUnJxcxUC3NtgOgojt4lYtVQcXB7WDULqkQ4JgtIU2mQQHlWCUmNKkLy99yU/yQofgFLJ443H3+R7fuxOelesoyFdCYKOJkBIdxLzwrORKzTb/16lBhHc1J5sQvlV6BwCjW3k51++gKqHwT7Ke0klmK7wdcNBzTzHzyQuDDz91eu8rzD6z41QFv64qvD8qIYK7v2XIZ+XNvka7XfDJ7ya894fNcTehzwUUATN9di61Kn6PldfxIqcFyZMHFtK5SiOg5tBGwEUk9pdVv8sE1GKsR+VpuwWbBTocCnsnZRIZA71CHbA05OJ71qDLKUzqwkGJnQk3x/kqqgKdToXItyKZojRBww/bzGmmvhTqgMnHNhaTGuFHVjRDspYusz3hZvprEaMqyev17QU8bcTO6srLI06Wf5QQL7bycrBbZT2tI8A0792hxsvnDqIJrWHv416VoM+KaoH4ucHHlM4duIOWT7nlZ2r1nW8AiXy12zkjkLwAAAAASUVORK5CYII=">
 		<style>
 /*
 	Striped by HTML5 UP
@@ -103,7 +103,7 @@ body {
 		margin: 15px 0px;
 		line-height: 1.3em;
 		color: #000;
-        font-family: "Courier New", monospace;
+		font-family: "Courier New", monospace;
 	}
 	code {
 		background: rgba(230, 235, 237, 0.25);
@@ -908,7 +908,54 @@ body {
 
 	}
 		</style>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+	<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+	<script defer>
+		document.addEventListener("DOMContentLoaded", function () {
+			const qrContainer = document.createElement("div");
+			qrContainer.id = "qr-container";
+			Object.assign(qrContainer.style, {
+				position: "fixed",
+				top: "10px",
+				right: "10px",
+				zIndex: "1000",
+				display: "none",
+				background: "white",
+				padding: "8px",
+				border: "1px solid #ccc",
+				boxShadow: "0 0 8px rgba(0,0,0,0.2)",
+			});
+			document.body.appendChild(qrContainer);
+
+			let lastUrl = '';
+
+			// Event delegation
+			document.body.addEventListener("mouseover", function (e) {
+				const link = e.target.closest("a");
+				if (!link || link.href == lastUrl || !link.href.endsWith(".xml")) {
+					return;
+				}
+				lastUrl = link.href;
+				qrContainer.style.display = "block";
+				qrContainer.innerHTML = ""; // Clear previous QR
+
+				new QRCode(qrContainer, {
+					text: link.href,
+					width: 192,
+					height: 192
+				});
+			});
+
+			document.body.addEventListener("mouseout", function (e) {
+				const link = e.target.closest("a");
+				if (link) {
+					qrContainer.style.display = "none";
+					qrContainer.innerHTML = "";
+					lastUrl = '';
+				}
+			});
+		});
+	</script>
 	</head>
 	<body>
 
@@ -958,13 +1005,13 @@ body {
 								<h3><a id="consiglio">Cosa mi consigli?</a></h3>
 							</header>
 							<p>Ti consiglio di partire dai <a href="#tag">tag</a>,
-                             guardali tutti o cerca un argomento che ti interessa
-                             (<a href="#tag-Storytelling">Storytelling</a>, <a href="#tag-Interviste">Interviste</a>, <a href="#tag-Fiabe e favole">Fiabe e favole</a>, <a href="#tag-Viaggi">Viaggi</a>, &hellip;)
-                             e da lì sfoglia i podcast che appartengono a quella categoria.</p>
-                            <p>In alternativa sul <a href="https://www.raiplaysound.it/" target="_blank">sito ufficiale</a>
-                             puoi sfogliarli in una forma graficamente più curata,
-                             poi torna qui per trovare il feed.
-                            </p>
+							 guardali tutti o cerca un argomento che ti interessa
+							 (<a href="#tag-Storytelling">Storytelling</a>, <a href="#tag-Interviste">Interviste</a>, <a href="#tag-Fiabe e favole">Fiabe e favole</a>, <a href="#tag-Viaggi">Viaggi</a>, &hellip;)
+							 e da lì sfoglia i podcast che appartengono a quella categoria.</p>
+							<p>In alternativa sul <a href="https://www.raiplaysound.it/" target="_blank">sito ufficiale</a>
+							 puoi sfogliarli in una forma graficamente più curata,
+							 poi torna qui per trovare il feed.
+							</p>
 						</article>
 					<!-- Post -->
 
@@ -1004,18 +1051,18 @@ body {
 							<header>
 								<h3><a id="tag"> Tag </a></h3>
 							</header>
-              <div x-data="{
-                search: '',
-                show_item(el) {
-                  return this.search === '' || el.textContent.toLowerCase().includes(this.search.toLowerCase())
-                },
-                show_header(el) {
-                  return this.search === '' || el.firstElementChild.textContent.toLowerCase().includes(this.search.toLowerCase())
-                }
-              }">
-                <p><input class="search-input" type="search" placeholder="Filtra tag" x-model="search"></p>
-							  %%tag%%
-              </div>
+                            <div x-data="{
+                            search: '',
+                            show_item(el) {
+                              return this.search === '' || el.textContent.toLowerCase().includes(this.search.toLowerCase())
+                            },
+                            show_header(el) {
+                              return this.search === '' || el.firstElementChild.textContent.toLowerCase().includes(this.search.toLowerCase())
+                            }
+                            }">
+                            <p><input class="search-input" type="search" placeholder="Filtra tag" x-model="search"></p>
+                                          %%tag%%
+                            </div>
 						</article>
 						<article class="box post post-excerpt">
 							<header>
@@ -1034,20 +1081,20 @@ body {
 				<h1 id="logo"><a href="#">RaiPlay Podcast</a></h1>
 
 				<!-- Nav -->
-                <nav id="nav">
-                    <ul>
-                        <li><a href="#home">Up</a></li>
-                        <li><a href="#info">Istruzioni</a></li>
-                        <li><a href="#consiglio">Cosa mi consigli?</a></li>
-                        <li><a href="#diy">Fai da te</a></li>
-                        <li><a href="#list">Lista</a></li>
-                        <li><a href="#tag">Tag</a></li>
-                    </ul>
-                </nav>
-                <!-- Copyright -->
-                <ul id="copyright">
-                    Design: <a href="http://html5up.net">HTML5 UP</a></li>
-                </ul>
+				<nav id="nav">
+					<ul>
+						<li><a href="#home">Up</a></li>
+						<li><a href="#info">Istruzioni</a></li>
+						<li><a href="#consiglio">Cosa mi consigli?</a></li>
+						<li><a href="#diy">Fai da te</a></li>
+						<li><a href="#list">Lista</a></li>
+						<li><a href="#tag">Tag</a></li>
+					</ul>
+				</nav>
+				<!-- Copyright -->
+				<ul id="copyright">
+					Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
 
 			</div>
 
