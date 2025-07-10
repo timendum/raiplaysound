@@ -75,7 +75,10 @@ class Indexer:
         for k in sorted(index.keys()):
             text += f"<h4 id='list-{k.upper()}'>{k.upper()}</h4>\n"
             for v in index[k]:
-                text += f'<p x-show="show_feed($el)"><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                text += (
+                    '<p x-show="show_feed($el)">'
+                    + f'<a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                )
         return text
 
     def generate_tag(self):
