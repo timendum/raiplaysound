@@ -11,8 +11,10 @@ GENERI_URL = "https://www.raiplaysound.it/generi"
 
 Entry = namedtuple("Entry", ["title", "sort", "text", "file", "categories"])
 
+
 def sort_title(title: str) -> str:
     return normalize("NFD", title.lstrip("#'\"« ")).lower()
+
 
 class Indexer:
     def __init__(self):
@@ -41,7 +43,7 @@ class Indexer:
             except TypeError:
                 # Podcast with ony one category
                 e = Entry(
-                    feed.title
+                    feed.title,
                     sort_title(feed.title),
                     feed.description,
                     filename,
