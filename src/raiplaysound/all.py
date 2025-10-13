@@ -30,8 +30,9 @@ class RaiPlaySound:
         _xml = BeautifulSoup(_r.text, "xml")
         _sitemaps = _xml.find_all("sitemap")
         for item in _sitemaps:
-            url = item.find_next("loc").text
-            urls.add(url)
+            loc = item.find_next("loc")
+            if loc:
+                urls.add(loc.text)
         return urls
 
     def _get_url_from_sitemap(self, sitemap_url: str, url_base: str):
