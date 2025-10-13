@@ -109,6 +109,47 @@ class RaiParser:
                 fitem._data[f"{NSITUNES}episode"] = item["episode"]
             feed.items.append(fitem)
 
+    def _fix_dates(self, feed: Feed, date_ok: bool, reverse: bool) -> None:
+        if not date_ok and all([item.update for item in feed.items]):
+            # Try to fix the update timestamp
+            dates = [i.update.date() for i in feed.items]
+            increasing = all(map(lambda a, b: b >= a, dates[0:-1], dates[1:]))
+            decreasing = all(map(lambda a, b: b <= a, dates[0:-1], dates[1:]))
+            if increasing and not decreasing:
+                # Dates never decrease
+                last_update = dt.fromtimestamp(0)
+                for item in feed.items:
+                    if item.update <= last_update:
+                        item.update = last_update + timedelta(seconds=1)
+                    last_update = item.update
+            elif decreasing and not increasing:
+                # Dates never decrease
+                last_update = feed.items[0].update + timedelta(seconds=1)
+                for item in feed.items:
+                    if item.update >= last_update:
+                        item.update = last_update - timedelta(seconds=1)
+                    last_update = item.update
+        if all([i._data.get(f"{NSITUNES}episode") for i in feed.items]) and all(
+            [i._data.get(f"{NSITUNES}season") for i in feed.items]
+        ):
+            try:
+                feed.items = sorted(
+                    feed.items,
+                    key=lambda e: int(e._data[f"{NSITUNES}episode"])
+                    + int(e._data[f"{NSITUNES}season"]) * 10000,
+                    reverse=reverse,
+                )
+            except ValueError:
+                # season or episode not an int
+                feed.items = sorted(
+                    feed.items,
+                    key=lambda e: str(e._data[f"{NSITUNES}season"]).zfill(5)
+                    + str(e._data[f"{NSITUNES}episode"]).zfill(5),
+                    reverse=reverse,
+                )
+        else:
+            feed.sort_items()
+
     def process(
         self, skip_programmi=True, skip_film=True, date_ok=False, reverse=False
     ) -> list[Feed]:
@@ -134,45 +175,7 @@ class RaiParser:
         if not feed.items and not self.inner:
             print(f"Empty: {self.url}")
         if feed.items:
-            if not date_ok and all([item.update for item in feed.items]):
-                # Try to fix the update timestamp
-                dates = [i.update.date() for i in feed.items]
-                increasing = all(map(lambda a, b: b >= a, dates[0:-1], dates[1:]))
-                decreasing = all(map(lambda a, b: b <= a, dates[0:-1], dates[1:]))
-                if increasing and not decreasing:
-                    # Dates never decrease
-                    last_update = dt.fromtimestamp(0)
-                    for item in feed.items:
-                        if item.update <= last_update:
-                            item.update = last_update + timedelta(seconds=1)
-                        last_update = item.update
-                elif decreasing and not increasing:
-                    # Dates never decrease
-                    last_update = feed.items[0].update + timedelta(seconds=1)
-                    for item in feed.items:
-                        if item.update >= last_update:
-                            item.update = last_update - timedelta(seconds=1)
-                        last_update = item.update
-            if all([i._data.get(f"{NSITUNES}episode") for i in feed.items]) and all(
-                [i._data.get(f"{NSITUNES}season") for i in feed.items]
-            ):
-                try:
-                    feed.items = sorted(
-                        feed.items,
-                        key=lambda e: int(e._data[f"{NSITUNES}episode"])
-                        + int(e._data[f"{NSITUNES}season"]) * 10000,
-                        reverse=reverse,
-                    )
-                except ValueError:
-                    # season or episode not an int
-                    feed.items = sorted(
-                        feed.items,
-                        key=lambda e: str(e._data[f"{NSITUNES}season"]).zfill(5)
-                        + str(e._data[f"{NSITUNES}episode"]).zfill(5),
-                        reverse=reverse,
-                    )
-            else:
-                feed.sort_items()
+            self._fix_dates(feed, date_ok, reverse)
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
             atomic_write(filename, to_rss_string(feed))
             print(f"Written {filename}")
