@@ -74,8 +74,8 @@ class RaiPlaySound:
 
     def create_feeds(self, skip_programmi: bool, skip_film: bool):
         for url in self._urls:
-            rai_parser = RaiParser(url, self._base_path)
+            rai_parser = RaiParser(url, self._base_path, skip_programmi, skip_film)
             try:
-                rai_parser.process(skip_programmi, skip_film)
+                rai_parser.process()
             except Exception as e:
                 print(f"Error with {url}: {e}")

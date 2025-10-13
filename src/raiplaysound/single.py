@@ -30,10 +30,22 @@ def _datetime_parser(s: str) -> dt | None:
 
 
 class RaiParser:
-    def __init__(self, url: str, folder_path: str) -> None:
+    def __init__(
+        self,
+        url: str,
+        folder_path: str,
+        skip_programmi=True,
+        skip_film=True,
+        date_ok=False,
+        reverse=False,
+    ) -> None:
         self.url = url
         self.folderPath = folder_path
         self.inner: list[Feed] = []
+        self.skip_programmi = skip_programmi
+        self.skip_film = skip_film
+        self.date_ok = date_ok
+        self.reverse = reverse
 
     def extend(self, url: str) -> None:
         url = urljoin(self.url, url)
@@ -109,8 +121,8 @@ class RaiParser:
                 fitem._data[f"{NSITUNES}episode"] = item["episode"]
             feed.items.append(fitem)
 
-    def _fix_dates(self, feed: Feed, date_ok: bool, reverse: bool) -> None:
-        if not date_ok and all([item.update for item in feed.items]):
+    def _fix_dates(self, feed: Feed) -> None:
+        if not self.date_ok and all([item.update for item in feed.items]):
             # Try to fix the update timestamp
             dates = [i.update.date() for i in feed.items]
             increasing = all(map(lambda a, b: b >= a, dates[0:-1], dates[1:]))
@@ -137,7 +149,7 @@ class RaiParser:
                     feed.items,
                     key=lambda e: int(e._data[f"{NSITUNES}episode"])
                     + int(e._data[f"{NSITUNES}season"]) * 10000,
-                    reverse=reverse,
+                    reverse=self.reverse,
                 )
             except ValueError:
                 # season or episode not an int
@@ -145,14 +157,12 @@ class RaiParser:
                     feed.items,
                     key=lambda e: str(e._data[f"{NSITUNES}season"]).zfill(5)
                     + str(e._data[f"{NSITUNES}episode"]).zfill(5),
-                    reverse=reverse,
+                    reverse=self.reverse,
                 )
         else:
             feed.sort_items()
 
-    def process(
-        self, skip_programmi=True, skip_film=True, date_ok=False, reverse=False
-    ) -> list[Feed]:
+    def process(self) -> list[Feed]:
         result = requests.get(self.url + ".json")
         try:
             result.raise_for_status()
@@ -161,10 +171,10 @@ class RaiParser:
             return self.inner
         rdata = result.json()
         typology = rdata["podcast_info"].get("typology", "").lower()
-        if skip_programmi and (typology in ("programmi radio", "informazione notiziari")):
+        if self.skip_programmi and (typology in ("programmi radio", "informazione notiziari")):
             print(f"Skipped programmi: {self.url} ({typology})")
             return []
-        if skip_film and (typology in ("film", "fiction")):
+        if self.skip_film and (typology in ("film", "fiction")):
             print(f"Skipped film: {self.url} ({typology})")
             return []
         for tab in rdata["tab_menu"]:
@@ -175,7 +185,7 @@ class RaiParser:
         if not feed.items and not self.inner:
             print(f"Empty: {self.url}")
         if feed.items:
-            self._fix_dates(feed, date_ok, reverse)
+            self._fix_dates(feed)
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
             atomic_write(filename, to_rss_string(feed))
             print(f"Written {filename}")
