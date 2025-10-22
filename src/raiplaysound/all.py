@@ -16,7 +16,7 @@ REQ_TIMEOUT = 3
 
 
 class RaiPlaySound:
-    def __init__(self):
+    def __init__(self) -> None:
         self._urls = set()
         self._base_path = path.join(".", "out")
         makedirs(self._base_path, exist_ok=True)
@@ -35,7 +35,7 @@ class RaiPlaySound:
                 urls.add(loc.text)
         return urls
 
-    def _get_url_from_sitemap(self, sitemap_url: str, url_base: str):
+    def _get_url_from_sitemap(self, sitemap_url: str, url_base: str) -> None:
         """Generate the url of a program given a sitemap and a base_url."""
 
         locs = self._get_locs_from_sitemap_url(sitemap_url)
@@ -44,7 +44,7 @@ class RaiPlaySound:
             url = urljoin(url_base, podcast_name)
             self._urls.add(url)
 
-    def parse_genere(self, url: str):
+    def parse_genere(self, url: str) -> None:
         """Parses the a genere page."""
 
         result = requests.get(url, timeout=REQ_TIMEOUT)
@@ -55,7 +55,7 @@ class RaiPlaySound:
             url = urljoin(url, element.find("a")["href"])
             self._urls.add(url)
 
-    def parse_index(self):
+    def parse_index(self) -> None:
         """Parses main sitemap descending into sitemaps."""
 
         sitemaps_url = self._get_locs_from_sitemap_url(SITEMAP_ENTRYPOINT)
@@ -72,7 +72,7 @@ class RaiPlaySound:
             else:
                 print(f"Unsupported sitemap: {url}")
 
-    def create_feeds(self, skip_programmi: bool, skip_film: bool):
+    def create_feeds(self, skip_programmi: bool, skip_film: bool) -> None:
         for url in self._urls:
             rai_parser = RaiParser(url, self._base_path, skip_programmi, skip_film)
             try:

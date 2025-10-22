@@ -34,10 +34,10 @@ class RaiParser:
         self,
         url: str,
         folder_path: str,
-        skip_programmi=True,
-        skip_film=True,
-        date_ok=False,
-        reverse=False,
+        skip_programmi: bool = True,
+        skip_film: bool = True,
+        date_ok: bool = False,
+        reverse: bool = False,
     ) -> None:
         self.url = url
         self.folderPath = folder_path
@@ -192,7 +192,7 @@ class RaiParser:
         return [feed] + self.inner
 
 
-def atomic_write(filename, content: str):
+def atomic_write(filename: str, content: str) -> None:
     tmp = tempfile.NamedTemporaryFile(
         mode="w",
         encoding="utf8",

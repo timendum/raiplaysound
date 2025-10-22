@@ -4,19 +4,21 @@ if TYPE_CHECKING:
     from argparse import Namespace
 
 
-def handle_single(args: "Namespace"):
+def handle_single(args: "Namespace") -> None:
     from raiplaysound.single import RaiParser
 
-    parser = RaiParser(args.url, args.folder)
-    parser.process(
+    parser = RaiParser(
+        args.url,
+        args.folder,
         skip_programmi=not args.programma,
         skip_film=not args.film,
         date_ok=args.dateok,
         reverse=args.reverse,
     )
+    parser.process()
 
 
-def handle_all(args: "Namespace"):
+def handle_all(args: "Namespace") -> None:
     from raiplaysound.all import RaiPlaySound
 
     skip_programmi = not args.programma
@@ -26,14 +28,14 @@ def handle_all(args: "Namespace"):
     dumper.create_feeds(skip_programmi, skip_film)
 
 
-def handle_index(_: "Namespace"):
+def handle_index(_: "Namespace") -> None:
     from raiplaysound.index import Indexer
 
     indexer = Indexer()
     indexer.generate()
 
 
-def main():
+def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(

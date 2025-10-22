@@ -12,12 +12,14 @@ GENERI_URL = "https://www.raiplaysound.it/generi"
 Entry = namedtuple("Entry", ["title", "sort", "text", "file", "categories"])
 
 
-def sort_title(title: str) -> str:
+def sort_title(title: str | None) -> str | None:
+    if not title:
+        return title
     return normalize("NFD", title.lstrip("#'\"« ")).lower()
 
 
 class Indexer:
-    def __init__(self):
+    def __init__(self) -> None:
         self.entries = []
         self._seen_url = set()
         self._base_path = Path(path.join(".", "out"))
@@ -58,7 +60,7 @@ class Indexer:
         with open(path.join(self._base_path, "index.html"), "w", encoding="utf8") as text_file:
             text_file.write(output)
 
-    def generate_list(self):
+    def generate_list(self) -> str:
         index = {}
         for entry in self.entries:
             letter = entry.sort[0]
@@ -81,7 +83,7 @@ class Indexer:
                 )
         return text
 
-    def generate_tag(self):
+    def generate_tag(self) -> str:
         tags = {}
         for entry in self.entries:
             for tag in entry.categories:
