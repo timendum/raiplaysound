@@ -30,22 +30,25 @@ def _datetime_parser(s: str) -> dt | None:
 
 
 class RaiParser:
+    session = requests.Session()
+
     def __init__(
         self,
         url: str,
         folder_path: str,
-        skip_programmi: bool = True,
-        skip_film: bool = True,
-        date_ok: bool = False,
-        reverse: bool = False,
     ) -> None:
         self.url = url
         self.folderPath = folder_path
         self.inner: list[Feed] = []
-        self.skip_programmi = skip_programmi
-        self.skip_film = skip_film
-        self.date_ok = date_ok
-        self.reverse = reverse
+        self.skip_programmi = True
+        self.skip_film = True
+        self.date_ok = False
+        self.reverse = False
+        self.verbose = True
+
+    def log(self, msg: str, level = 20) -> None:
+        if self.verbose:
+            print(msg)
 
     def extend(self, url: str) -> None:
         url = urljoin(self.url, url)
@@ -163,19 +166,19 @@ class RaiParser:
             feed.sort_items()
 
     def process(self) -> list[Feed]:
-        result = requests.get(self.url + ".json")
+        result = self.session.get(self.url + ".json")
         try:
             result.raise_for_status()
         except requests.HTTPError as e:
-            print(f"Error with {self.url}: {e}")
+            self.log(f"Error with {self.url}: {e}")
             return self.inner
         rdata = result.json()
         typology = rdata["podcast_info"].get("typology", "").lower()
         if self.skip_programmi and (typology in ("programmi radio", "informazione notiziari")):
-            print(f"Skipped programmi: {self.url} ({typology})")
+            self.log(f"Skipped programmi: {self.url} ({typology})")
             return []
         if self.skip_film and (typology in ("film", "fiction")):
-            print(f"Skipped film: {self.url} ({typology})")
+            self.log(f"Skipped film: {self.url} ({typology})")
             return []
         for tab in rdata["tab_menu"]:
             if tab["content_type"] == "playlist":
@@ -183,12 +186,12 @@ class RaiParser:
         feed = Feed()
         self._json_to_feed(feed, rdata)
         if not feed.items and not self.inner:
-            print(f"Empty: {self.url}")
+            self.log(f"Empty: {self.url}")
         if feed.items:
             self._fix_dates(feed)
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
             atomic_write(filename, to_rss_string(feed))
-            print(f"Written {filename}")
+            self.log(f"Written {filename}")
         return [feed] + self.inner
 
 
