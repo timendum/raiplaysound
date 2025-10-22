@@ -19,6 +19,7 @@ class RaiPlaySound:
     def __init__(self) -> None:
         self._urls = set()
         self._base_path = path.join(".", "out")
+        self.workers = 0
         makedirs(self._base_path, exist_ok=True)
 
     def _get_locs_from_sitemap_url(self, sitemap_url: str) -> set[str]:
@@ -72,10 +73,53 @@ class RaiPlaySound:
             else:
                 print(f"Unsupported sitemap: {url}")
 
-    def create_feeds(self, skip_programmi: bool, skip_film: bool) -> None:
+    def create_feeds_simple(self, skip_programmi: bool, skip_film: bool) -> None:
         for url in self._urls:
             rai_parser = RaiParser(url, self._base_path, skip_programmi, skip_film)
             try:
                 rai_parser.process()
             except Exception as e:
                 print(f"Error with {url}: {e}")
+
+    def create_feeds_thread(self, skip_programmi: bool, skip_film: bool) -> None:
+        # Use threads to process multiple feeds in parallel
+        import signal
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        def _run(url: str) -> tuple[str, Exception | None]:
+            try:
+                rai_parser = RaiParser(url, self._base_path, skip_programmi, skip_film)
+                rai_parser.process()
+                return (url, None)
+            except Exception as e:
+                return (url, e)
+
+        def handle_sigint(signum, frame):
+            print("\nReceived Ctrl+C. Cancelling running tasks...")
+            for fut in futures:
+                fut.cancel()
+            exe.shutdown(wait=False, cancel_futures=True)
+            raise KeyboardInterrupt
+
+        with ThreadPoolExecutor(max_workers=self.workers) as exe:
+            # Set up signal handler
+            signal.signal(signal.SIGINT, handle_sigint)
+
+            futures = {exe.submit(_run, url): url for url in self._urls}
+            try:
+                for fut in as_completed(futures):
+                    url = futures[fut]
+                    try:
+                        _, err = fut.result()
+                        if err:
+                            print(f"Error with {url}: {err}")
+                    except Exception as e:
+                        print(f"Unhandled error with {url}: {e}")
+            except KeyboardInterrupt:
+                print("\nStopped by user. Cleaning up...")
+
+    def create_feeds(self, skip_programmi: bool, skip_film: bool) -> None:
+        if self.workers <= 1:
+            self.create_feeds_simple(skip_programmi, skip_film)
+            return
+        self.create_feeds_thread(skip_programmi, skip_film)

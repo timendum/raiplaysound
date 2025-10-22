@@ -24,6 +24,7 @@ def handle_all(args: "Namespace") -> None:
     skip_programmi = not args.programma
     skip_film = not args.film
     dumper = RaiPlaySound()
+    dumper.workers = args.workers
     dumper.parse_index()
     dumper.create_feeds(skip_programmi, skip_film)
 
@@ -88,6 +89,12 @@ def main() -> None:
         "--programma",
         help="Elabora il podcast anche se sembra un programma radio/tv.",
         action="store_true",
+    )
+    parser_all.add_argument(
+        "--workers",
+        help="Number of parallel workers to use when generating feeds (default: 1).",
+        type=int,
+        default=1,
     )
     # index command
     parser_index = subparsers.add_parser(
