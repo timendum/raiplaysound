@@ -24,7 +24,7 @@ def _datetime_parser(s: str) -> dt | None:
     """Parses a date string in various formats."""
     if not s:
         return None
-    formats = ["%d-%m-%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%Y-%m-%d"]
+    formats = ["%d-%m-%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%Y-%m-%d", "%d-%m-%Y"]
     for fmt in formats:
         try:
             return dt.strptime(s, fmt)
