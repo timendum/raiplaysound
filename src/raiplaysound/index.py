@@ -20,20 +20,20 @@ def sort_title(title: str | None) -> str | None:
 
 class Indexer:
     def __init__(self) -> None:
-        self.entries = []
-        self._seen_url = set()
+        self.entries: list[Entry] = []
+        self._seen_url: set[str] = set()
         self._base_path = Path(path.join(".", "out"))
 
     def generate(self) -> None:
-        xfiles = self._base_path.glob("*.xml")
-        for xfile in xfiles:
-            filename = xfile.name
-            feed = from_rss_file(xfile)
+        xml_files = self._base_path.glob("*.xml")
+        for xml_file in xml_files:
+            filename = xml_file.name
+            feed = from_rss_file(xml_file)
             try:
                 e = Entry(
                     feed.title,
                     sort_title(feed.title),
-                    feed.description,
+                    feed.description or "",
                     filename,
                     [
                         c["@text"]
@@ -47,7 +47,7 @@ class Indexer:
                 e = Entry(
                     feed.title,
                     sort_title(feed.title),
-                    feed.description,
+                    feed.description or "",
                     filename,
                     [feed._data["{http://www.itunes.com/dtds/podcast-1.0.dtd}category"]["@text"]],
                 )
@@ -61,7 +61,7 @@ class Indexer:
             text_file.write(output)
 
     def generate_list(self) -> str:
-        index = {}
+        index = dict[str, list[Entry]]()
         for entry in self.entries:
             letter = entry.sort[0]
             if letter not in index:
@@ -77,14 +77,18 @@ class Indexer:
         for k in sorted(index.keys()):
             text += f"<h4 id='list-{k.upper()}'>{k.upper()}</h4>\n"
             for v in index[k]:
-                text += (
-                    '<p x-show="show_feed($el)">'
-                    + f'<a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
-                )
+                try:
+                    text += (
+                        '<p x-show="show_feed($el)">'
+                        + f'<a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                    )
+                except Exception:
+                    print(f"Error processing entry: {v}")
+                    raise
         return text
 
     def generate_tag(self) -> str:
-        tags = {}
+        tags = dict[str, list[Entry]]()
         for entry in self.entries:
             for tag in entry.categories:
                 if tag not in tags:
@@ -94,11 +98,11 @@ class Indexer:
         keys = list(tags.keys())
         duplicates = []
         for key in keys:
-            skey = key.translate(str.maketrans("à", "a", " '/"))
-            if skey == key:
+            s_key = key.translate(str.maketrans("à", "a", " '/"))
+            if s_key == key:
                 continue
-            if skey in keys:
-                duplicates.append(skey)
+            if s_key in keys:
+                duplicates.append(s_key)
         for dup in duplicates:
             del tags[dup]
         # Sort entries
