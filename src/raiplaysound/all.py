@@ -1,11 +1,11 @@
 from os import makedirs, path
 from urllib.parse import urljoin
 
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from raiplaysound.single import RaiParser
+from raiplaysound.single import REQ_TIMEOUT, RaiParser
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 SITEMAP_ENTRYPOINT = "https://www.raiplaysound.it/sitemap.archivio.indice.xml"
@@ -13,11 +13,9 @@ PROGRAMMI_URL = "https://www.raiplaysound.it/programmi/"
 AUDIOLIBRI_URL = "https://www.raiplaysound.it/audiolibri/"
 PLAYLIST_URL = "https://www.raiplaysound.it/playlist/"
 
-REQ_TIMEOUT = 3
-
 
 class RaiPlaySound:
-    session = requests.Session()  # Shared session for all instances, to reuse connections
+    session = httpx.Client(timeout=REQ_TIMEOUT)  # To reuse connections in all instances
 
     def __init__(self) -> None:
         self._urls = set()
@@ -29,7 +27,7 @@ class RaiPlaySound:
         """Downloads sitemap from url and returns all urls contained in the <loc> tag."""
 
         urls = set()
-        _r = self.session.get(sitemap_url, timeout=REQ_TIMEOUT)
+        _r = self.session.get(sitemap_url)
         _r.raise_for_status()
         _xml = BeautifulSoup(_r.text, "xml")
         _sitemaps = _xml.find_all("sitemap")
@@ -79,6 +77,7 @@ class RaiPlaySound:
                 print(f"Unsupported sitemap: {url}")
 
     def _create_feeds_simple(self, skip_programmi: bool, skip_film: bool) -> None:
+        RaiParser.session = self.session
         for url in tqdm(self._urls, unit="feed"):
             rai_parser = RaiParser(url, self._base_path)
             rai_parser.skip_film = skip_film
@@ -112,6 +111,7 @@ class RaiPlaySound:
             exe.shutdown(wait=False, cancel_futures=True)
             raise KeyboardInterrupt
 
+        RaiParser.session = self.session  # It can be shared between threads.
         with tqdm(total=len(self._urls), unit="feed") as pbar:
             with ThreadPoolExecutor(max_workers=self.workers) as exe:
                 # Set up signal handler

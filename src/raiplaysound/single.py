@@ -6,11 +6,13 @@ from itertools import chain
 from os.path import join as pathjoin
 from urllib.parse import urljoin
 
-import requests
+import httpx
 from feedendum import Feed, FeedItem, from_rss_file, to_rss_string
 from feedendum.exceptions import FeedParseError, FeedXMLError
 
 NSITUNES = "{http://www.itunes.com/dtds/podcast-1.0.dtd}"
+
+REQ_TIMEOUT = 5
 
 
 def url_to_filename(url: str) -> str:
@@ -43,7 +45,7 @@ class RaiParser:
         verbose            Print the output of the processing
     """
 
-    session = requests.Session()  # Shared session for all instances, to reuse connections
+    session = httpx.Client(timeout=REQ_TIMEOUT)  # To reuse connections in all instances
 
     def __init__(
         self,
@@ -197,7 +199,7 @@ class RaiParser:
         result = self.session.get(self.url + ".json")
         try:
             result.raise_for_status()
-        except requests.HTTPError as e:
+        except httpx.HTTPError as e:
             self.log(f"Error with {self.url}: {e}")
             return self.inner
         rdata = result.json()
