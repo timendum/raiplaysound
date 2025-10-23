@@ -1,0 +1,4 @@
+# set the directory Pyrefly will search for files to type check
+project-includes = [
+    "src"
+]

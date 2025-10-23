@@ -8,16 +8,18 @@ from urllib.parse import urljoin
 
 import requests
 from feedendum import Feed, FeedItem, from_rss_file, to_rss_string
-from feedendum.exceptions import FeedXMLError
+from feedendum.exceptions import FeedParseError, FeedXMLError
 
 NSITUNES = "{http://www.itunes.com/dtds/podcast-1.0.dtd}"
 
 
 def url_to_filename(url: str) -> str:
+    """Converts a RaiPlaySound URL to a filename."""
     return url.split("/")[-1] + ".xml"
 
 
 def _datetime_parser(s: str) -> dt | None:
+    """Parses a date string in various formats."""
     if not s:
         return None
     formats = ["%d-%m-%Y %H:%M:%S", "%d-%m-%Y %H:%M", "%Y-%m-%d"]
@@ -31,7 +33,17 @@ def _datetime_parser(s: str) -> dt | None:
 
 
 class RaiParser:
-    session = requests.Session()
+    """Parser for a single RaiPlaySound feed.
+
+    Attributes:
+        skip_programmi     Skip 'Programmi' and 'Notiziari'
+        skip_film          Skip 'Film' and 'Fiction'
+        date_ok            True if dates are known to be correct
+        reverse            Reverse the order of items (newest first)
+        verbose            Print the output of the processing
+    """
+
+    session = requests.Session()  # Shared session for all instances, to reuse connections
 
     def __init__(
         self,
@@ -47,20 +59,27 @@ class RaiParser:
         self.reverse = False
         self.verbose = True
 
-    def log(self, msg: str, level = 20) -> None:
+    def log(self, msg: str, level=20) -> None:
         if self.verbose:
             print(msg)
 
     def extend(self, url: str) -> None:
+        """Extends the processing of the current feed with another feed found at url."""
         url = urljoin(self.url, url)
         if url == self.url:
             return
         if url in (f.url for f in self.inner):
             return
         parser = RaiParser(url, self.folderPath)
+        # Carry over settings
+        parser.skip_programmi = self.skip_programmi
+        parser.skip_film = self.skip_film
+        parser.reverse = self.reverse
+        parser.verbose = self.verbose
         self.inner.extend(parser.process())
 
     def _json_to_feed(self, feed: Feed, rdata) -> None:
+        """Converts the JSON data to a Feed object."""
         feed.title = rdata["title"]
         feed.description = rdata["podcast_info"].get("description", "")
         feed.description = (feed.description or rdata["title"]).strip()
@@ -126,22 +145,29 @@ class RaiParser:
             feed.items.append(fitem)
 
     def _fix_dates(self, feed: Feed) -> None:
+        """Fixes and sort the dates of the feed items if necessary."""
         if not self.date_ok and all([item.update for item in feed.items]):
             # Try to fix the update timestamp
-            dates = [i.update.date() for i in feed.items]
+            dates = [i.update.date() for i in feed.items if i.update]
             increasing = all(map(lambda a, b: b >= a, dates[0:-1], dates[1:]))
             decreasing = all(map(lambda a, b: b <= a, dates[0:-1], dates[1:]))
             if increasing and not decreasing:
                 # Dates never decrease
                 last_update = dt.fromtimestamp(0)
                 for item in feed.items:
+                    assert item.update is not None
                     if item.update <= last_update:
                         item.update = last_update + timedelta(seconds=1)
                     last_update = item.update
             elif decreasing and not increasing:
                 # Dates never decrease
-                last_update = feed.items[0].update + timedelta(seconds=1)
+                last_update = (
+                    feed.items[0].update + timedelta(seconds=1)
+                    if feed.items[0].update
+                    else dt.now()
+                )
                 for item in feed.items:
+                    assert item.update is not None
                     if item.update >= last_update:
                         item.update = last_update - timedelta(seconds=1)
                     last_update = item.update
@@ -167,6 +193,7 @@ class RaiParser:
             feed.sort_items()
 
     def process(self) -> list[Feed]:
+        """Processes the url and returns a list of Feed objects."""
         result = self.session.get(self.url + ".json")
         try:
             result.raise_for_status()
@@ -199,13 +226,21 @@ class RaiParser:
 
 
 def atomic_write(filename: str, content: Feed, always=True) -> bool:
+    """Writes the feed to the file atomically.
+
+        filename: The file to write to.
+        content: The Feed object to write.
+        always: If True, always write the file. If False, only write if the content has changed.
+    Returns True if the file was written, False if no changes were made.
+
+    """
     if not always:
         try:
             with open(filename, encoding="utf8") as f:
                 old_feed = from_rss_file(f)
                 if compare_feed(old_feed, content):
                     return False
-        except (OSError, FeedXMLError):
+        except (OSError, FeedXMLError, FeedParseError):
             pass
     tmp = tempfile.NamedTemporaryFile(
         mode="w",
@@ -222,6 +257,9 @@ def atomic_write(filename: str, content: Feed, always=True) -> bool:
 
 
 def compare_feed(a: Feed, b: Feed) -> bool:
+    """Compares two Feed, skipping non-essential fields.
+
+    Returns True if they are equal, False otherwise."""
     if a.title != b.title:
         return False
     if a.description != b.description:

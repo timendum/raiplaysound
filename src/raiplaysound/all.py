@@ -17,6 +17,8 @@ REQ_TIMEOUT = 3
 
 
 class RaiPlaySound:
+    session = requests.Session()  # Shared session for all instances, to reuse connections
+
     def __init__(self) -> None:
         self._urls = set()
         self._base_path = path.join(".", "out")
@@ -27,7 +29,7 @@ class RaiPlaySound:
         """Downloads sitemap from url and returns all urls contained in the <loc> tag."""
 
         urls = set()
-        _r = requests.get(sitemap_url, timeout=REQ_TIMEOUT)
+        _r = self.session.get(sitemap_url, timeout=REQ_TIMEOUT)
         _r.raise_for_status()
         _xml = BeautifulSoup(_r.text, "xml")
         _sitemaps = _xml.find_all("sitemap")
@@ -49,13 +51,15 @@ class RaiPlaySound:
     def parse_genere(self, url: str) -> None:
         """Parses the a genere page."""
 
-        result = requests.get(url, timeout=REQ_TIMEOUT)
+        result = self.session.get(url, timeout=REQ_TIMEOUT)
         result.raise_for_status()
         soup = BeautifulSoup(result.content, "html.parser")
         elements = soup.find_all("article")
         for element in elements:
-            url = urljoin(url, element.find("a")["href"])
-            self._urls.add(url)
+            a = element.find("a")
+            if a and isinstance(a["href"], str):
+                url = urljoin(url, a["href"])
+                self._urls.add(url)
 
     def parse_index(self) -> None:
         """Parses main sitemap descending into sitemaps."""
@@ -74,8 +78,8 @@ class RaiPlaySound:
             else:
                 print(f"Unsupported sitemap: {url}")
 
-    def create_feeds_simple(self, skip_programmi: bool, skip_film: bool) -> None:
-        for url in tqdm(self._urls):
+    def _create_feeds_simple(self, skip_programmi: bool, skip_film: bool) -> None:
+        for url in tqdm(self._urls, unit="feed"):
             rai_parser = RaiParser(url, self._base_path)
             rai_parser.skip_film = skip_film
             rai_parser.skip_programmi = skip_programmi
@@ -85,7 +89,7 @@ class RaiPlaySound:
             except Exception as e:
                 print(f"Error with {url}: {e}")
 
-    def create_feeds_thread(self, skip_programmi: bool, skip_film: bool) -> None:
+    def _create_feeds_thread(self, skip_programmi: bool, skip_film: bool) -> None:
         # Use threads to process multiple feeds in parallel
         import signal
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -108,7 +112,7 @@ class RaiPlaySound:
             exe.shutdown(wait=False, cancel_futures=True)
             raise KeyboardInterrupt
 
-        with tqdm(total=len(self._urls)) as pbar:
+        with tqdm(total=len(self._urls), unit="feed") as pbar:
             with ThreadPoolExecutor(max_workers=self.workers) as exe:
                 # Set up signal handler
                 signal.signal(signal.SIGINT, handle_sigint)
@@ -128,7 +132,8 @@ class RaiPlaySound:
                     print("\nStopped by user. Cleaning up...")
 
     def create_feeds(self, skip_programmi: bool, skip_film: bool) -> None:
+        """Creates feeds for all collected URLs."""
         if self.workers <= 1:
-            self.create_feeds_simple(skip_programmi, skip_film)
+            self._create_feeds_simple(skip_programmi, skip_film)
             return
-        self.create_feeds_thread(skip_programmi, skip_film)
+        self._create_feeds_thread(skip_programmi, skip_film)

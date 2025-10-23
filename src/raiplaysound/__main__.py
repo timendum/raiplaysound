@@ -10,11 +10,11 @@ def handle_single(args: "Namespace") -> None:
     parser = RaiParser(
         args.url,
         args.folder,
-        skip_programmi=not args.programma,
-        skip_film=not args.film,
-        date_ok=args.dateok,
-        reverse=args.reverse,
     )
+    parser.skip_programmi = not args.programma
+    parser.skip_film = not args.film
+    parser.date_ok = args.dateok
+    parser.reverse = args.reverse
     parser.process()
 
 
