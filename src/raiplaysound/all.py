@@ -1,3 +1,4 @@
+from collections.abc import Container, Iterable
 from os import makedirs, path
 from urllib.parse import urljoin
 
@@ -5,7 +6,7 @@ import httpx
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from raiplaysound.single import REQ_TIMEOUT, RaiParser
+from raiplaysound.single import REQ_TIMEOUT, SKIP_DEFAULT, RaiParser
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 SITEMAP_ENTRYPOINT = "https://www.raiplaysound.it/sitemap.archivio.indice.xml"
@@ -15,7 +16,10 @@ PLAYLIST_URL = "https://www.raiplaysound.it/playlist/"
 
 
 class RaiPlaySound:
-    session = httpx.Client(timeout=REQ_TIMEOUT)  # To reuse connections in all instances
+    # Setup retries
+    _transport = httpx.HTTPTransport(retries=3)
+    # To reuse connections in all instances
+    session = httpx.Client(timeout=REQ_TIMEOUT, transport=_transport)
 
     def __init__(self) -> None:
         self._urls = set()
@@ -76,19 +80,18 @@ class RaiPlaySound:
             else:
                 print(f"Unsupported sitemap: {url}")
 
-    def _create_feeds_simple(self, skip_programmi: bool, skip_film: bool) -> None:
+    def _create_feeds_simple(self, skip: Container[str] | Iterable[str]) -> None:
         RaiParser.session = self.session
         for url in tqdm(self._urls, unit="feed"):
             rai_parser = RaiParser(url, self._base_path)
-            rai_parser.skip_film = skip_film
-            rai_parser.skip_programmi = skip_programmi
+            rai_parser.skip = skip
             rai_parser.verbose = False
             try:
                 rai_parser.process()
             except Exception as e:
                 print(f"Error with {url}: {e}")
 
-    def _create_feeds_thread(self, skip_programmi: bool, skip_film: bool) -> None:
+    def _create_feeds_thread(self, skip: Container[str] | Iterable[str]) -> None:
         # Use threads to process multiple feeds in parallel
         import signal
         from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -96,15 +99,14 @@ class RaiPlaySound:
         def _run(url: str) -> tuple[str, Exception | None]:
             try:
                 rai_parser = RaiParser(url, self._base_path)
-                rai_parser.skip_film = skip_film
-                rai_parser.skip_programmi = skip_programmi
+                rai_parser.skip = skip
                 rai_parser.verbose = False
                 rai_parser.process()
                 return (url, None)
             except Exception as e:
                 return (url, e)
 
-        def handle_sigint(signum, frame):
+        def handle_sigint(_, __):
             print("\nReceived Ctrl+C. Cancelling running tasks...")
             for fut in futures:
                 fut.cancel()
@@ -131,9 +133,10 @@ class RaiPlaySound:
                 except KeyboardInterrupt:
                     print("\nStopped by user. Cleaning up...")
 
-    def create_feeds(self, skip_programmi: bool, skip_film: bool) -> None:
+    def create_feeds(self, skip: list[str] | None = None) -> None:
         """Creates feeds for all collected URLs."""
+        d_skip = skip or SKIP_DEFAULT
         if self.workers <= 1:
-            self._create_feeds_simple(skip_programmi, skip_film)
+            self._create_feeds_simple(d_skip)
             return
-        self._create_feeds_thread(skip_programmi, skip_film)
+        self._create_feeds_thread(d_skip)

@@ -4,15 +4,32 @@ from datetime import datetime as dt
 from datetime import timedelta
 from itertools import chain
 from os.path import join as pathjoin
+from typing import TYPE_CHECKING
 from urllib.parse import urljoin
 
 import httpx
 from feedendum import Feed, FeedItem, from_rss_file, to_rss_string
 from feedendum.exceptions import FeedParseError, FeedXMLError
 
+if TYPE_CHECKING:
+    from collections.abc import Container, Iterable
+
+
 NSITUNES = "{http://www.itunes.com/dtds/podcast-1.0.dtd}"
 
 REQ_TIMEOUT = 5
+
+SKIP_DEFAULT = set(
+    [
+        "programmi radio",
+        "informazione notiziari",
+        "radiocronache",
+        "programmi tv",
+        "film",
+        "fiction",
+        "serie tv",
+    ]
+)
 
 
 def url_to_filename(url: str) -> str:
@@ -55,8 +72,7 @@ class RaiParser:
         self.url = url
         self.folderPath = folder_path
         self.inner: list[Feed] = []
-        self.skip_programmi = True
-        self.skip_film = True
+        self.skip: Container[str] | Iterable[str] = []
         self.date_ok = False
         self.reverse = False
         self.verbose = True
@@ -74,15 +90,14 @@ class RaiParser:
             return
         parser = RaiParser(url, self.folderPath)
         # Carry over settings
-        parser.skip_programmi = self.skip_programmi
-        parser.skip_film = self.skip_film
+        parser.skip = self.skip
         parser.reverse = self.reverse
         parser.verbose = self.verbose
         self.inner.extend(parser.process())
 
     def _json_to_feed(self, feed: Feed, rdata) -> None:
         """Converts the JSON data to a Feed object."""
-        feed.title = rdata["title"]
+        feed.title = rdata["title"].strip()
         feed.description = rdata["podcast_info"].get("description", "")
         feed.description = (feed.description or rdata["title"]).strip()
         feed.url = self.url
@@ -104,7 +119,7 @@ class RaiParser:
                 categories.add(c["name"])
         except KeyError:
             pass
-        feed._data[f"{NSITUNES}category"] = [{"@text": c} for c in categories]
+        feed._data[f"{NSITUNES}category"] = [{"@text": c} for c in sorted(categories)]
         cards = []
         try:
             feed.update = _datetime_parser(rdata["block"]["update_date"])
@@ -119,7 +134,7 @@ class RaiParser:
             if not item.get("audio", None):
                 continue
             fitem = FeedItem()
-            fitem.title = item["toptitle"]
+            fitem.title = item["toptitle"].strip()
             fitem.id = "timendum-raiplaysound-" + item["uniquename"]
             # Keep original ordering by tweaking update seconds
             # Fix time in case of bad ordering
@@ -142,8 +157,8 @@ class RaiParser:
                     self.url, item["downloadable_audio"]["url"]
                 ).replace("http:", "https:")
             if item.get("season", None) and item.get("episode", None):
-                fitem._data[f"{NSITUNES}season"] = item["season"]
-                fitem._data[f"{NSITUNES}episode"] = item["episode"]
+                fitem._data[f"{NSITUNES}season"] = item["season"].strip()
+                fitem._data[f"{NSITUNES}episode"] = item["episode"].strip()
             feed.items.append(fitem)
 
     def _fix_dates(self, feed: Feed) -> None:
@@ -204,11 +219,8 @@ class RaiParser:
             return self.inner
         rdata = result.json()
         typology = rdata["podcast_info"].get("typology", "").lower()
-        if self.skip_programmi and (typology in ("programmi radio", "informazione notiziari")):
-            self.log(f"Skipped programmi: {self.url} ({typology})")
-            return []
-        if self.skip_film and (typology in ("film", "fiction")):
-            self.log(f"Skipped film: {self.url} ({typology})")
+        if typology in self.skip:
+            self.log(f"Skipped: {self.url} ({typology})")
             return []
         for tab in rdata["tab_menu"]:
             if tab["content_type"] == "playlist":
@@ -220,7 +232,7 @@ class RaiParser:
         if feed.items:
             self._fix_dates(feed)
             filename = pathjoin(self.folderPath, url_to_filename(self.url))
-            if atomic_write(filename, feed):
+            if atomic_write(filename, feed, False):
                 self.log(f"Written {filename}")
             else:
                 self.log(f"No changes for {filename}")
@@ -270,8 +282,6 @@ def compare_feed(a: Feed, b: Feed) -> bool:
         return False
     if a._data.get("image", {}).get("url", None) != b._data.get("image", {}).get("url", None):
         return False
-    # TODO? feed._data[f"{NSITUNES}category"]
-    # not update
     if len(a.items) != len(b.items):
         return False
     for ia, ib in zip(a.items, b.items, strict=True):
@@ -287,11 +297,5 @@ def compare_feed(a: Feed, b: Feed) -> bool:
         if ia._data.get("enclosure", {}).get("@url", None) != ib._data.get("enclosure", {}).get(
             "@url", None
         ):
-            return False
-        if ia._data.get(f"{NSITUNES}duration", None) != ib._data.get(f"{NSITUNES}duration", None):
-            return False
-        if ia._data.get(f"{NSITUNES}episode", None) != ib._data.get(f"{NSITUNES}episode", None):
-            return False
-        if ia._data.get(f"{NSITUNES}season", None) != ib._data.get(f"{NSITUNES}season", None):
             return False
     return True

@@ -59,15 +59,14 @@ Argomenti e opzioni:
 
 - url (obbligatorio): URL del podcast o della playlist su raiplaysound (es. `https://www.raiplaysound.it/programma/xyz`).
 - -f, --folder (default: `.`): cartella in cui scrivere il file XML del podcast.
-- --film: elabora il podcast anche se risulta classificato come film/fiction.
-- --programma: elabora il podcast anche se risulta classificato come programma radio/tv o notiziario.
+- --skip <tipo>: specifica una o più tipologie da saltare o includere (vedi sotto).
 - --dateok: lascia inalterata la data di pubblicazione degli episodi (se presente nei dati).
 - --reverse: ordina gli episodi dal più recente al meno recente (reverse order).
 
 Esempio:
 
 ```bash
-python -m raiplaysound single https://www.raiplaysound.it/programma/mio-podcast --folder out --programma --dateok
+python -m raiplaysound single https://www.raiplaysound.it/programma/mio-podcast --folder out --skip default --dateok
 ```
 
 Nota: il comando salva il feed in formato RSS in `folder/<nome>.xml` dove `<nome>` è ricavato dall'URL.
@@ -80,8 +79,8 @@ Esecuzione: `uvx raiplaysound all [opzioni]`
 
 Opzioni:
 
-- --film: elabora anche i podcast classificati come film/fiction.
-- --programma: elabora anche i podcast classificati come programmi radio/tv o notiziari.
+- --skip <tipo>: consente di impostare le tipologie da saltare o usare 'default' per il comportamento predefinito.
+  Esempi: `--skip default` (usa i tipi predefiniti), `--skip film --skip "programmi radio"`.
 - --workers N (default: 1): numero di worker in parallelo da usare per generare i feed. Se `N` è maggiore di 1 viene usata la modalità multithread.
 
 Esempio:

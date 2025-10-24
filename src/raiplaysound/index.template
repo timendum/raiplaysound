@@ -1026,25 +1026,7 @@ body {
 							<p>Se hai <a href="https://docs.astral.sh/uv/" target="_blank">uv</a> installato sul tuo sistema, puoi usare uvx.</p>
 							<p>Per generare un singolo Feed podcast:</p>
 							<pre>uvx raiplaysound single https://www.raiplaysound.it/…</pre>
-							<p>Se la pagina che ti interessa viene saltata, usa questo comando, per includere anche i programmi quotidiani e i film o fiction da ascoltare:</p>
-							<pre>uvx raiplaysound single --film --programma https://www.raiplaysound.it/…</pre>
-							<p>Se nel feed generato vuoi le date originali, usa:</p>
-							<pre>uvx raiplaysound single --dateok https://www.raiplaysound.it/…</pre>
-							<p>Se preferisci avere le puntate ordinate dalla più recente usa:</p>
-							<pre>uvx raiplaysound single --reverse https://www.raiplaysound.it/…</pre>
-							<p>Per generare tutti i feed in un colpo solo nella cartella <code>out</code>.</p>
-							<pre>uvx raiplaysound all</pre>
-							<p>Per aggiornare questa pagina:</p>
-							<pre>uvx raiplaysound index</pre>
-
-							<h4>Sviluppatore: git e python</h4>
-							<p>Sfrutta questa possibilità se hai intenzione o necessità di modificare il codice.</p>
-							<p>Clonare il repository</p>
-							<pre>git clone https://github.com/timendum/raiplaysound.git</pre>
-							<p>Installare le dipendenze</p>
-							<pre>uv sync</pre>
-							<p>Per lanciare i comandi</p>
-							<pre>uv run -m raiplaysound ...</pre>
+							<p>Maggiori istruzioni sul <a href="https://github.com/timendum/raiplaysound/blob/master/README.md">README.md</a></pre>
 						</article>
 						<hr/>
 						<article class="box post post-excerpt">
