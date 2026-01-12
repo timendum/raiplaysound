@@ -6,7 +6,7 @@ import httpx
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from raiplaysound.single import REQ_TIMEOUT, SKIP_DEFAULT, RaiParser
+from raiplaysound.single import SESSION, SKIP_DEFAULT, RaiParser
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 SITEMAP_ENTRYPOINT = "https://www.raiplaysound.it/sitemap.archivio.indice.xml"
@@ -19,7 +19,7 @@ class RaiPlaySound:
     # Setup retries
     _transport = httpx.HTTPTransport(retries=3)
     # To reuse connections in all instances
-    session = httpx.Client(timeout=REQ_TIMEOUT, transport=_transport)
+    session = SESSION
 
     def __init__(self) -> None:
         self._urls = set()
@@ -53,7 +53,7 @@ class RaiPlaySound:
     def parse_genere(self, url: str) -> None:
         """Parses the a genere page."""
 
-        result = self.session.get(url, timeout=REQ_TIMEOUT)
+        result = self.session.get(url)
         result.raise_for_status()
         soup = BeautifulSoup(result.content, "html.parser")
         elements = soup.find_all("article")

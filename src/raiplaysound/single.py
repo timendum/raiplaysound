@@ -51,6 +51,17 @@ def _datetime_parser(s: str) -> dt | None:
     return None
 
 
+SESSION = httpx.Client(
+    timeout=REQ_TIMEOUT,
+    headers={
+        "User-Agent": "Mozilla/5.0 (Linux; Android 16; SM-A065M Build/BP2A.250605.031.A3) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.146 Mobile Safari/537.36"
+    },
+)
+# Init session cookies
+SESSION.get("https://www.raiplaysound.it")
+
+
 class RaiParser:
     """Parser for a single RaiPlaySound feed.
 
@@ -62,13 +73,7 @@ class RaiParser:
         verbose            Print the output of the processing
     """
 
-    session = httpx.Client(
-        timeout=REQ_TIMEOUT,
-        headers={
-            "User-Agent": "Mozilla/5.0 (Linux; Android 16; SM-A065M Build/BP2A.250605.031.A3) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.146 Mobile Safari/537.36"
-        },
-    )  # To reuse connections in all instances
+    session = SESSION  # To reuse connections in all instances
 
     def __init__(
         self,
