@@ -62,7 +62,13 @@ class RaiParser:
         verbose            Print the output of the processing
     """
 
-    session = httpx.Client(timeout=REQ_TIMEOUT)  # To reuse connections in all instances
+    session = httpx.Client(
+        timeout=REQ_TIMEOUT,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Linux; Android 16; SM-A065M Build/BP2A.250605.031.A3) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.7499.146 Mobile Safari/537.36"
+        },
+    )  # To reuse connections in all instances
 
     def __init__(
         self,
