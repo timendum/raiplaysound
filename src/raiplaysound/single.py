@@ -216,16 +216,20 @@ class RaiParser:
             try:
                 feed.items = sorted(
                     feed.items,
-                    key=lambda e: int(e._data[f"{NSITUNES}episode"])
-                    + int(e._data[f"{NSITUNES}season"]) * 10000,
+                    key=lambda e: (
+                        int(e._data[f"{NSITUNES}episode"])
+                        + int(e._data[f"{NSITUNES}season"]) * 10000
+                    ),
                     reverse=self.reverse,
                 )
             except ValueError:
                 # season or episode not an int
                 feed.items = sorted(
                     feed.items,
-                    key=lambda e: str(e._data[f"{NSITUNES}season"]).zfill(5)
-                    + str(e._data[f"{NSITUNES}episode"]).zfill(5),
+                    key=lambda e: (
+                        str(e._data[f"{NSITUNES}season"]).zfill(5)
+                        + str(e._data[f"{NSITUNES}episode"]).zfill(5)
+                    ),
                     reverse=self.reverse,
                 )
         else:
