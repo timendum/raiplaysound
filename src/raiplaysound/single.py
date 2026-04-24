@@ -4,8 +4,9 @@ from datetime import datetime as dt
 from datetime import timedelta
 from itertools import chain
 from os.path import join as pathjoin
+from os.path import normpath
 from typing import TYPE_CHECKING
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from feedendum import Feed, FeedItem, from_rss_file, to_rss_string
@@ -32,9 +33,16 @@ SKIP_DEFAULT = set(
 )
 
 
-def url_to_filename(url: str) -> str:
-    """Converts a RaiPlaySound URL to a filename."""
-    return url.split("/")[-1] + ".xml"
+def url_to_filename(url: str, keep_path: bool = False) -> str:
+    """Converts a RaiPlaySound URL to a filename.
+
+    If keep_path is True, preserves the middle path segments.
+    """
+
+    path = urlparse(url).path.strip("/")
+    if keep_path and "/" in path:
+        return path + ".xml"
+    return path.split("/")[-1] + ".xml"
 
 
 def _datetime_parser(s: str) -> dt | None:
@@ -87,6 +95,7 @@ class RaiParser:
         self.date_ok = False
         self.reverse = False
         self.verbose = True
+        self.keep_path = False
 
     def log(self, msg: str, level=20) -> None:
         if self.verbose:
@@ -104,6 +113,7 @@ class RaiParser:
         parser.skip = self.skip
         parser.reverse = self.reverse
         parser.verbose = self.verbose
+        parser.keep_path = self.keep_path
         self.inner.extend(parser.process())
 
     def _json_to_feed(self, feed: Feed, rdata) -> None:
@@ -242,7 +252,9 @@ class RaiParser:
             self.log(f"Empty: {self.url}")
         if feed.items:
             self._fix_dates(feed)
-            filename = pathjoin(self.folderPath, url_to_filename(self.url))
+            filename = pathjoin(self.folderPath, url_to_filename(self.url, self.keep_path))
+            filename = normpath(filename)
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
             if atomic_write(filename, feed, False):
                 self.log(f"Written {filename}")
             else:

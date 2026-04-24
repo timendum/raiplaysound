@@ -25,9 +25,9 @@ class Indexer:
         self._base_path = Path(path.join(".", "out"))
 
     def generate(self) -> None:
-        xml_files = self._base_path.glob("*.xml")
+        xml_files = self._base_path.glob("**/*.xml")
         for xml_file in xml_files:
-            filename = xml_file.name
+            filename = xml_file.relative_to(self._base_path).as_posix()
             feed = from_rss_file(xml_file)
             try:
                 e = Entry(

@@ -17,6 +17,7 @@ def handle_single(args: "Namespace") -> None:
         parser.skip = [s.lower() for s in args.skip]
     parser.date_ok = args.dateok
     parser.reverse = args.reverse
+    parser.keep_path = args.keep_path
     parser.process()
 
 
@@ -70,6 +71,11 @@ def main() -> None:
     parser_single.add_argument(
         "--reverse",
         help="Ordina gli episodi dal più recente al meno recente.",
+        action="store_true",
+    )
+    parser_single.add_argument(
+        "--keep-path",
+        help="Mantieni la cartella intermedia dell'URL.",
         action="store_true",
     )
     # all command

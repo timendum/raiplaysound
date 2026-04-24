@@ -86,6 +86,7 @@ class RaiPlaySound:
             rai_parser = RaiParser(url, self._base_path)
             rai_parser.skip = skip
             rai_parser.verbose = False
+            rai_parser.keep_path = True
             try:
                 rai_parser.process()
             except Exception as e:
@@ -101,6 +102,7 @@ class RaiPlaySound:
                 rai_parser = RaiParser(url, self._base_path)
                 rai_parser.skip = skip
                 rai_parser.verbose = False
+                rai_parser.keep_path = True
                 rai_parser.process()
                 return (url, None)
             except Exception as e:
