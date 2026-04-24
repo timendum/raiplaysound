@@ -170,9 +170,10 @@ class RaiParser:
                 },
                 f"{NSITUNES}title": fitem.title,
                 f"{NSITUNES}summary": fitem.content,
-                f"{NSITUNES}duration": item["audio"]["duration"],
                 "image": {"url": urljoin(self.url, item["image"])},
             }
+            if item["audio"].get("duration", None):
+                fitem._data[f"{NSITUNES}duration"] = item["audio"]["duration"]
             if item.get("downloadable_audio", None) and item["downloadable_audio"].get("url", None):
                 fitem._data["enclosure"]["@url"] = urljoin(
                     self.url, item["downloadable_audio"]["url"]
