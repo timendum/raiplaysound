@@ -70,22 +70,22 @@ class Indexer:
         # Sort entries
         for letter in index:
             index[letter] = sorted(index[letter], key=lambda entry: entry.sort)
-        text = "<p>Salta a: "
+        parts: list[str] = ["<p>Salta a: "]
         for k in sorted(index.keys()):
-            text += f"<a href='#list-{k.upper()}'>{k.upper()}</a> "
-        text += "</p>\n"
+            parts.append(f"<a href='#list-{k.upper()}'>{k.upper()}</a> ")
+        parts.append("</p>\n")
         for k in sorted(index.keys()):
-            text += f"<h4 id='list-{k.upper()}'>{k.upper()}</h4>\n"
+            parts.append(f"<h4 id='list-{k.upper()}'>{k.upper()}</h4>\n")
             for v in index[k]:
                 try:
-                    text += (
+                    parts.append(
                         '<p x-show="show_feed($el)">'
-                        + f'<a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                        f'<a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
                     )
                 except Exception:
                     print(f"Error processing entry: {v}")
                     raise
-        return text
+        return "".join(parts)
 
     def generate_tag(self) -> str:
         tags = dict[str, list[Entry]]()
@@ -108,13 +108,15 @@ class Indexer:
         # Sort entries
         for tag in tags:
             tags[tag] = sorted(tags[tag], key=lambda entry: entry.title.lower())
-        text = "<p>Salta a: "
+        parts: list[str] = ["<p>Salta a: "]
         for tag in sorted(tags.keys()):
-            text += f"<a x-show='show_item($el)' href='#tag-{tag}'>{tag}</a> "
-        text += "</p>\n"
+            parts.append(f"<a x-show='show_item($el)' href='#tag-{tag}'>{tag}</a> ")
+        parts.append("</p>\n")
         for tag in sorted(tags.keys()):
-            text += f"<div x-show='show_header($el)'>\n<h4 id='tag-{tag}'>{tag}</h4>\n"
+            parts.append(f"<div x-show='show_header($el)'>\n<h4 id='tag-{tag}'>{tag}</h4>\n")
             for v in tags[tag]:
-                text += f'<p><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
-            text += "</div>\n"
-        return text
+                parts.append(
+                    f'<p><a href="{v.file}">{escape(v.title)}</a> - {escape(v.text)}</p>\n'
+                )
+            parts.append("</div>\n")
+        return "".join(parts)
