@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from collections import namedtuple
 from datetime import date
 from html import escape
@@ -26,7 +27,7 @@ class Indexer:
 
     def generate(self) -> None:
         xml_files = self._base_path.glob("**/*.xml")
-        for xml_file in xml_files:
+        for xml_file in tqdm(list(xml_files), unit="feed"):
             filename = xml_file.relative_to(self._base_path).as_posix()
             feed = from_rss_file(xml_file)
             try:
