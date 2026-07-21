@@ -1,4 +1,3 @@
-from tqdm import tqdm
 from collections import namedtuple
 from datetime import date
 from html import escape
@@ -7,6 +6,7 @@ from pathlib import Path
 from unicodedata import normalize
 
 from feedendum import from_rss_file
+from tqdm import tqdm
 
 GENERI_URL = "https://www.raiplaysound.it/generi"
 
